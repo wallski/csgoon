@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="csgoon.vcxproj" Id="51b6eff7-f55a-4b12-8680-8982a6f40903" />
+</Solution>
