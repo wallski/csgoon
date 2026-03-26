@@ -11,22 +11,22 @@
 class CGameSceneNode
 {
 public:
-    SCHEMA(uintptr_t, m_modelState, Offsets::m_modelState);
+    SCHEMA(uintptr_t, m_modelState, Offsets::CModelState::m_modelState);
 };
 
 class C_Player_ObserverServices {
 public:
-    SCHEMA(uint32_t, m_hObserverTarget, Offsets::m_hObserverTarget);
+    SCHEMA(uint32_t, m_hObserverTarget, Offsets::CHandle::m_hObserverTarget);
 };
 
 class C_BaseEntity
 {
 public:
-    SCHEMA(uint32_t, m_fFlags, Offsets::m_fFlags);
-    SCHEMA(int, m_iHealth, Offsets::m_iHealth);
-    SCHEMA(int, m_iTeamNum, Offsets::m_iTeamNum);
-    SCHEMA(Vector, m_vOldOrigin, Offsets::m_vOldOrigin);
-    SCHEMA(uintptr_t, m_pGameSceneNode, Offsets::m_pGameSceneNode);
+    SCHEMA(uint32_t, m_fFlags, Offsets::uint32::m_fFlags);
+    SCHEMA(int, m_iHealth, Offsets::int32::m_iHealth);
+    SCHEMA(int, m_iTeamNum, Offsets::uint8::m_iTeamNum);
+    SCHEMA(Vector, m_vOldOrigin, Offsets::Vector::m_vOldOrigin);
+    SCHEMA(uintptr_t, m_pGameSceneNode, Offsets::CGameSceneNode::m_pGameSceneNode);
 
     bool IsAlive() const { return m_iHealth() > 0; }
 };
@@ -34,17 +34,19 @@ public:
 class C_CSPlayerPawn : public C_BaseEntity
 {
 public:
-    SCHEMA(Vector, m_vecViewOffset, Offsets::m_vecViewOffset);
-    SCHEMA(int, m_iShotsFired, Offsets::m_iShotsFired);
-    SCHEMA(Vector, m_aimPunchAngle, Offsets::m_aimPunchAngle);
-    SCHEMA(uintptr_t, m_pObserverServices, Offsets::m_pObserverServices);
-    SCHEMA(int, m_iIDEntIndex, Offsets::m_iIDEntIndex);
+    SCHEMA(Vector, m_vecViewOffset, Offsets::CNetworkViewOffsetVector::m_vecViewOffset);
+    SCHEMA(int, m_iShotsFired, Offsets::int32::m_iShotsFired);
+    SCHEMA(Vector, m_aimPunchAngle, Offsets::QAngle::m_aimPunchAngle);
+    SCHEMA(uintptr_t, m_pObserverServices, Offsets::CPlayer_ObserverServices::m_pObserverServices);
+    SCHEMA(int, m_iIDEntIndex, Offsets::CEntityIndex::m_iIDEntIndex);
+    SCHEMA(Vector, m_angEyeAngles, Offsets::QAngle::m_angEyeAngles);
+
 };
 
 class C_CSPlayerController : public C_BaseEntity
 {
 public:
-    SCHEMA(uint32_t, m_hPlayerPawn, Offsets::m_hPlayerPawn);
-    SCHEMA(const char*, m_iszPlayerName, Offsets::m_iszPlayerName);
-    SCHEMA(bool, m_bPawnIsAlive, Offsets::m_bPawnIsAlive);
+    SCHEMA(uint32_t, m_hPlayerPawn, Offsets::CHandle::m_hPlayerPawn);
+    SCHEMA(const char*, m_iszPlayerName, Offsets::chars::m_iszPlayerName);
+    SCHEMA(bool, m_bPawnIsAlive, Offsets::bools::m_bPawnIsAlive);
 };

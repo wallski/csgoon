@@ -1,4 +1,5 @@
 #include "Hooks.h"
+#include "InputHook.h"
 
 #include "../../ext/imgui/imgui.h"
 #include "../../ext/imgui/imgui_impl_win32.h"
@@ -76,14 +77,17 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
         ImGui_ImplDX11_Init(g_Device, g_Context);
 
         g_Init = true;
+
     }
+    if (Globals::g_Unloading)
+        return oPresent(swapChain, sync, flags);
 
     EntityManager::Get().Update();
 
     uintptr_t client = Memory::GetModuleBase("client.dll");
     memcpy(
         &Globals::ViewMatrix,
-        (void*)(client + Offsets::dwViewMatrix),
+        (void*)(client + Offsets::v_angle::dwViewMatrix),
         sizeof(Globals::ViewMatrix)
     );
 
@@ -103,7 +107,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
         ImGui::GetIO().MouseDrawCursor = false;
     }
 
-    if (GetAsyncKeyState(VK_INSERT) & 1)
+    if (GetAsyncKeyState(VK_DELETE) & 1)
         Menu::IsOpen = !Menu::IsOpen;
 
     if (Menu::IsOpen)
@@ -112,7 +116,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
     Visuals::Render();
     Misc::Render();
     Misc::Run();
-    
+
     ImGui::Render();
     g_Context->OMSetRenderTargets(1, &g_RTV, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -122,8 +126,12 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
 void Hooks::Setup()
 {
-    if (MH_Initialize() != MH_OK)
+
+
+    if (MH_Initialize() != MH_OK) {
         return;
+    }
+
 
     WNDCLASSEXW wc{};
     wc.cbSize = sizeof(wc);
@@ -182,10 +190,23 @@ void Hooks::Setup()
 
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
+
+
+
+
+    InputHook::Setup();
+
+
 }
 
 void Hooks::Destroy()
 {
+    Globals::g_Unloading = true;
+    Sleep(100);
+
+    // Destroy input hook first
+    InputHook::Destroy();
+
     MH_DisableHook(MH_ALL_HOOKS);
     MH_Uninitialize();
 

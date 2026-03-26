@@ -8,7 +8,9 @@
 #include <algorithm>
 #include "../utils/Vector.h"
 #include "../entity/Classes.h"
-
+#include "../memory/Offsets.h"
+#include "../memory/Patterns.h"
+#include "../memory/PatternScan.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -76,6 +78,10 @@ enum class BoneID : int {
 };
 
 
+
+
+
+
 struct BoneConnection
 {
     BoneID bone1;
@@ -111,6 +117,53 @@ namespace Bones
 
 namespace Utils
 {
+
+
+    inline float Dot(const Vector& a, const Vector& b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    inline bool IsInSmoke(Vector from, Vector to) {
+        uintptr_t client = Memory::GetModuleBase("client.dll");
+
+        uintptr_t listPtr = *reinterpret_cast<uintptr_t*>(client + Offsets::v_angle::dwEntityList);
+        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::v_angle::dwGameEntitySystem_highestEntityIndex);
+
+        if (highestIndex <= 0 || highestIndex > 32768)
+            return false;
+
+        for (int i = 0; i < highestIndex; i++) {
+            uintptr_t listEntry = *reinterpret_cast<uintptr_t*>(listPtr + (8 * ((i & 0x7FFF) >> 9)) + 16);
+            if (!listEntry) continue;
+
+            uintptr_t entity = *reinterpret_cast<uintptr_t*>(listEntry + 112 * (i & 0x1FF));
+            if (!entity) continue;
+
+            bool didSmoke = *reinterpret_cast<bool*>(entity + Offsets::bools::m_bDidSmokeEffect);
+
+            if (!didSmoke) continue;
+
+            Vector smokePos = *reinterpret_cast<Vector*>(entity + Offsets::Vector::m_vSmokeDetonationPos);
+            if (smokePos.IsZero()) continue;
+
+
+            Vector d = to - from;
+            Vector w = smokePos - from;
+
+            float t = Dot(w, d) / Dot(d, d);
+            t = std::clamp(t, 0.f, 1.f);
+
+            Vector closest = from + d * t;
+            float dist = (smokePos - closest).Length();
+
+            if (dist < 150.f)
+                return true;
+        }
+
+
+        return false;
+    }
+
     inline bool IsValidPtr(uintptr_t addr)
     {
         return addr > 0x10000 && addr < 0x7FFFFFFFFFFF;
@@ -188,7 +241,7 @@ namespace Utils
         if (!scene)
             return {};
 
-        uintptr_t boneArray = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(scene) + Offsets::m_modelState + 0x80);
+        uintptr_t boneArray = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(scene) + Offsets::CModelState::m_modelState + 0x80);
         if (!IsValidPtr(boneArray))
             return {};
 

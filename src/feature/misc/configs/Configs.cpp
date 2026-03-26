@@ -39,14 +39,41 @@ void Configs::Save(const std::string& name) {
     file << "esp_name_color_b=" << Globals::esp_name_color[2] << "\n";
     file << "esp_name_color_a=" << Globals::esp_name_color[3] << "\n";
     file << "esp_health=" << Globals::esp_health << "\n";
-    file << "esp_enemy_only=" << Globals::esp_enemy_only << "\n";
-    file << "esp_box_fill=" << Globals::esp_box_fill << "\n";
     file << "esp_box_fill=" << Globals::esp_box_fill << "\n";
     file << "esp_box_fill_color_r=" << Globals::esp_box_fill_color[0] << "\n";
     file << "esp_box_fill_color_g=" << Globals::esp_box_fill_color[1] << "\n";
     file << "esp_box_fill_color_b=" << Globals::esp_box_fill_color[2] << "\n";
     file << "esp_box_fill_color_a=" << Globals::esp_box_fill_color[3] << "\n";
     file << "esp_autoload_enabled=" << Globals::autoload_enabled << "\n";
+    file << "esp_team_box_color_r=" << Globals::esp_team_box_color[0] << "\n";
+    file << "esp_team_box_color_g=" << Globals::esp_team_box_color[1] << "\n";
+    file << "esp_team_box_color_b=" << Globals::esp_team_box_color[2] << "\n";
+    file << "esp_team_box_color_a=" << Globals::esp_team_box_color[3] << "\n";
+    file << "esp_team_skeleton_color_r=" << Globals::esp_team_skeleton_color[0] << "\n";
+    file << "esp_team_skeleton_color_g=" << Globals::esp_team_skeleton_color[1] << "\n";
+    file << "esp_team_skeleton_color_b=" << Globals::esp_team_skeleton_color[2] << "\n";
+    file << "esp_team_skeleton_color_a=" << Globals::esp_team_skeleton_color[3] << "\n";
+    file << "esp_team_box_fill_color_r=" << Globals::esp_team_box_fill_color[0] << "\n";
+    file << "esp_team_box_fill_color_g=" << Globals::esp_team_box_fill_color[1] << "\n";
+    file << "esp_team_box_fill_color_b=" << Globals::esp_team_box_fill_color[2] << "\n";
+    file << "esp_team_box_fill_color_a=" << Globals::esp_team_box_fill_color[3] << "\n";
+    file << "esp_team_box=" << Globals::esp_team_box << "\n";
+    file << "esp_team_corner_box=" << Globals::esp_team_corner_box << "\n";
+    file << "esp_team_box_fill=" << Globals::esp_team_box_fill << "\n";
+    file << "esp_team_skeleton=" << Globals::esp_team_skeleton << "\n";
+    file << "esp_box_team_thickness=" << Globals::esp_box_team_thickness << "\n";
+    file << "esp_team_ct_color_r=" << Globals::esp_team_ct_color[0] << "\n";
+    file << "esp_team_ct_color_g=" << Globals::esp_team_ct_color[1] << "\n";
+    file << "esp_team_ct_color_b=" << Globals::esp_team_ct_color[2] << "\n";
+    file << "esp_team_ct_color_a=" << Globals::esp_team_ct_color[3] << "\n";
+    file << "esp_team_t_color_r=" << Globals::esp_team_t_color[0] << "\n";
+    file << "esp_team_t_color_g=" << Globals::esp_team_t_color[1] << "\n";
+    file << "esp_team_t_color_b=" << Globals::esp_team_t_color[2] << "\n";
+    file << "esp_team_t_color_a=" << Globals::esp_team_t_color[3] << "\n";
+    file << "esp_team_health=" << Globals::esp_team_health << "\n";
+    file << "esp_team_enabled=" << Globals::esp_team_enabled << "\n";
+    file << "esp_enemy_enabled=" << Globals::esp_enemy_enabled << "\n";
+
 
     // aimbot
     file << "aim_enabled=" << Globals::aim_enabled << "\n";
@@ -54,6 +81,10 @@ void Configs::Save(const std::string& name) {
     file << "aim_autoshoot=" << Globals::aim_autoshoot << "\n";
     file << "aim_fov=" << Globals::aim_fov << "\n";
     file << "aim_smooth=" << Globals::aim_smooth << "\n";
+    file << "aim_head=" << Globals::aim_head << "\n";
+    file << "aim_body=" << Globals::aim_body << "\n";
+    file << "rage_fov=" << Globals::rage_fov << "\n";
+    file << "aim_team_check=" << Globals::aim_team_check << "\n";
     file << "aim_head=" << Globals::aim_head << "\n";
     file << "aim_body=" << Globals::aim_body << "\n";
 
@@ -72,6 +103,8 @@ void Configs::Save(const std::string& name) {
     file << "rage_multipoint=" << Globals::rage_multipoint << "\n";
     file << "rage_hitchance=" << Globals::rage_hitchance << "\n";
     file << "rage_mindmg=" << Globals::rage_mindmg << "\n";
+    file << "rage_fov=" << Globals::rage_fov << "\n";
+
 
     // legitbot
     file << "legit_enabled=" << Globals::legit_enabled << "\n";
@@ -86,6 +119,9 @@ void Configs::Save(const std::string& name) {
     file << "trigger_keybind_toggle=" << Globals::trigger_keybind_toggle << "\n";
     file << "trigger_key=" << Globals::trigger_key << "\n";
     file << "trigger_keybind_enabled=" << Globals::trigger_keybind_enabled << "\n";
+
+    // smoke
+    file << "trigger_smoke_check=" << Globals::trigger_smoke_check << "\n";
 
     file.close();
 }
@@ -116,6 +152,10 @@ void Configs::Load(const std::string& name) {
             else if (key == "esp_box_color_b")       Globals::esp_box_color[2] = std::stof(val);
             else if (key == "esp_box_color_a")       Globals::esp_box_color[3] = std::stof(val);
             else if (key == "esp_box_thickness")     Globals::esp_box_thickness = std::stof(val);
+            else if (key == "esp_team_box")        Globals::esp_team_box = val == "1";
+            else if (key == "esp_team_corner_box") Globals::esp_team_corner_box = val == "1";
+            else if (key == "esp_team_box_fill")   Globals::esp_team_box_fill = val == "1";
+            else if (key == "esp_team_skeleton")   Globals::esp_team_skeleton = val == "1";
             else if (key == "esp_skeleton")          Globals::esp_skeleton = val == "1";
             else if (key == "esp_skeleton_color_r")  Globals::esp_skeleton_color[0] = std::stof(val);
             else if (key == "esp_skeleton_color_g")  Globals::esp_skeleton_color[1] = std::stof(val);
@@ -127,14 +167,36 @@ void Configs::Load(const std::string& name) {
             else if (key == "esp_name_color_b")      Globals::esp_name_color[2] = std::stof(val);
             else if (key == "esp_name_color_a")      Globals::esp_name_color[3] = std::stof(val);
             else if (key == "esp_health")            Globals::esp_health = val == "1";
-            else if (key == "esp_enemy_only")        Globals::esp_enemy_only = val == "1";
             else if (key == "esp_box_fill")          Globals::esp_box_fill = val == "1";
             else if (key == "esp_autoload_enabled")  Globals::autoload_enabled = val == "1";
-            
-            else if (key == "esp_box_fill_color_r")  Globals::esp_box_fill_color[0] = std::stof(val);
-            else if (key == "esp_box_fill_color_g")  Globals::esp_box_fill_color[1] = std::stof(val);
-            else if (key == "esp_box_fill_color_b")  Globals::esp_box_fill_color[2] = std::stof(val);
-            else if (key == "esp_box_fill_color_a")  Globals::esp_box_fill_color[3] = std::stof(val);
+            else if (key == "esp_team_box_color_r")      Globals::esp_team_box_color[0] = std::stof(val);
+            else if (key == "esp_team_box_color_g")      Globals::esp_team_box_color[1] = std::stof(val);
+            else if (key == "esp_team_box_color_b")      Globals::esp_team_box_color[2] = std::stof(val);
+            else if (key == "esp_team_box_color_a")      Globals::esp_team_box_color[3] = std::stof(val);
+            else if (key == "esp_team_skeleton_color_r") Globals::esp_team_skeleton_color[0] = std::stof(val);
+            else if (key == "esp_team_skeleton_color_g") Globals::esp_team_skeleton_color[1] = std::stof(val);
+            else if (key == "esp_team_skeleton_color_b") Globals::esp_team_skeleton_color[2] = std::stof(val);
+            else if (key == "esp_team_skeleton_color_a") Globals::esp_team_skeleton_color[3] = std::stof(val);
+            else if (key == "esp_team_box_fill_color_r") Globals::esp_team_box_fill_color[0] = std::stof(val);
+            else if (key == "esp_team_box_fill_color_g") Globals::esp_team_box_fill_color[1] = std::stof(val);
+            else if (key == "esp_team_box_fill_color_b") Globals::esp_team_box_fill_color[2] = std::stof(val);
+            else if (key == "esp_team_box_fill_color_a") Globals::esp_team_box_fill_color[3] = std::stof(val);
+            else if (key == "esp_box_fill_color_r")    Globals::esp_box_fill_color[0] = std::stof(val);
+            else if (key == "esp_box_fill_color_g")    Globals::esp_box_fill_color[1] = std::stof(val);
+            else if (key == "esp_box_fill_color_b")    Globals::esp_box_fill_color[2] = std::stof(val);
+            else if (key == "esp_box_fill_color_a")    Globals::esp_box_fill_color[3] = std::stof(val);
+            else if (key == "esp_box_team_thickness")  Globals::esp_box_team_thickness = std::stof(val);
+            else if (key == "esp_team_ct_color_r")     Globals::esp_team_ct_color[0] = std::stof(val);
+            else if (key == "esp_team_ct_color_g")     Globals::esp_team_ct_color[1] = std::stof(val);
+            else if (key == "esp_team_ct_color_b")     Globals::esp_team_ct_color[2] = std::stof(val);
+            else if (key == "esp_team_ct_color_a")     Globals::esp_team_ct_color[3] = std::stof(val);
+            else if (key == "esp_team_t_color_r")      Globals::esp_team_t_color[0] = std::stof(val);
+            else if (key == "esp_team_t_color_g")      Globals::esp_team_t_color[1] = std::stof(val);
+            else if (key == "esp_team_t_color_b")      Globals::esp_team_t_color[2] = std::stof(val);
+            else if (key == "esp_team_t_color_a")      Globals::esp_team_t_color[3] = std::stof(val);
+            else if (key == "esp_team_health")         Globals::esp_team_health = val == "1";
+            else if (key == "esp_team_enabled")         Globals::esp_team_enabled = val == "1";
+            else if (key == "esp_enemy_enabled")    Globals::esp_enemy_enabled = val == "1";
 
             // aimbot
             else if (key == "aim_enabled")           Globals::aim_enabled = val == "1";
@@ -144,6 +206,10 @@ void Configs::Load(const std::string& name) {
             else if (key == "aim_smooth")            Globals::aim_smooth = std::stof(val);
             else if (key == "aim_head")              Globals::aim_head = val == "1";
             else if (key == "aim_body")              Globals::aim_body = val == "1";
+            else if (key == "rage_fov")        Globals::rage_fov = std::stof(val);
+            else if (key == "aim_team_check")  Globals::aim_team_check = val == "1";
+            else if (key == "aim_head")        Globals::aim_head = val == "1";
+            else if (key == "aim_body")        Globals::aim_body = val == "1";
 
             // misc
             else if (key == "misc_bhop")             Globals::misc_bhop = val == "1";
@@ -160,6 +226,7 @@ void Configs::Load(const std::string& name) {
             else if (key == "rage_multipoint")       Globals::rage_multipoint = val == "1";
             else if (key == "rage_hitchance")        Globals::rage_hitchance = std::stof(val);
             else if (key == "rage_mindmg")           Globals::rage_mindmg = std::stof(val);
+            else if (key == "rage_fov")             Globals::rage_fov = std::stof(val);
 
             // legitbot
             else if (key == "legit_enabled")         Globals::legit_enabled = val == "1";
@@ -174,9 +241,12 @@ void Configs::Load(const std::string& name) {
             else if (key == "trigger_keybind_toggle")Globals::trigger_keybind_toggle = val == "1";
             else if (key == "trigger_key")           Globals::trigger_key = std::stoi(val);
             else if (key == "trigger_keybind_enabled")Globals::trigger_keybind_enabled = val == "1";
+
+            // smoke
+            else if (key == "trigger_smoke_check") Globals::trigger_smoke_check = val == "1";
         }
         catch (...) {
-            // skip malformed lines
+
         }
     }
 
@@ -190,6 +260,35 @@ void Configs::Delete(const std::string& name) {
 void Configs::Reset() {
     // ESP
     //Globals::esp_name = false;
+    Globals::rage_fov = 5.0f;
+    Globals::aim_team_check = true;
+    Globals::aim_head = true;
+    Globals::aim_body = false;
+    Globals::esp_enemy_enabled = false;
+    Globals::esp_team_health = false;
+    Globals::esp_team_enabled = false;
+    Globals::esp_team_box_color[0] = 0.f;
+    Globals::esp_team_box = false;
+    Globals::esp_team_corner_box = false;
+    Globals::esp_team_box_fill = false;
+    Globals::esp_team_skeleton = false;
+    Globals::esp_team_box_color[1] = 0.5f;
+    Globals::esp_team_box_color[2] = 1.f;
+    Globals::esp_team_box_color[3] = 1.f;
+    Globals::esp_team_skeleton_color[0] = 0.f;
+    Globals::esp_team_skeleton_color[1] = 0.5f;
+    Globals::esp_team_skeleton_color[2] = 1.f;
+    Globals::esp_team_skeleton_color[3] = 0.9f;
+    Globals::esp_team_box_fill_color[0] = 0.f;
+    Globals::esp_team_box_fill_color[1] = 0.5f;
+    Globals::esp_team_box_fill_color[2] = 1.f;
+    Globals::esp_team_box_fill_color[3] = 0.2f;
+    Globals::esp_box_team_thickness = 1.5f;
+    Globals::esp_team_ct_color[0] = 0.31f; Globals::esp_team_ct_color[1] = 0.55f;
+    Globals::esp_team_ct_color[2] = 1.f;   Globals::esp_team_ct_color[3] = 1.f;
+    Globals::esp_team_t_color[0] = 1.f;   Globals::esp_team_t_color[1] = 0.65f;
+    Globals::esp_team_t_color[2] = 0.20f; Globals::esp_team_t_color[3] = 1.f;
+
     Globals::esp_enabled = false;
     Globals::esp_corner_box = false;
     Globals::esp_box = false;
@@ -209,7 +308,6 @@ void Configs::Reset() {
     Globals::esp_name_color[2] = 1.f;
     Globals::esp_name_color[3] = 1.f;
     Globals::esp_health = false;
-    Globals::esp_enemy_only = false;
     Globals::esp_box_fill = false;
     Globals::esp_box_fill = false;
     Globals::esp_box_fill_color[0] = 1.f;
@@ -242,6 +340,7 @@ void Configs::Reset() {
     Globals::rage_multipoint = false;
     Globals::rage_hitchance = 80.0f;
     Globals::rage_mindmg = 20.0f;
+    Globals::rage_fov = 5.0f;
 
     // Legitbot
     Globals::legit_enabled = false;
@@ -256,6 +355,9 @@ void Configs::Reset() {
     Globals::trigger_keybind_toggle = false;
     Globals::trigger_key = 0;
     Globals::trigger_keybind_enabled = false;
+
+    // Smoke
+    Globals::trigger_smoke_check = false;
 }
 
 void Configs::AutoLoad() {

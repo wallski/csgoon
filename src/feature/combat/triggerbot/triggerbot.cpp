@@ -60,6 +60,15 @@ void Triggerbot::Run() {
         lastShot = now;
         wasAiming = true;
     }
+    
+    /*
+    if (Globals::trigger_smoke_check) {
+        Vector eyePos = local->m_vOldOrigin();
+        eyePos.z += 64.f;
+        if (Utils::IsInSmoke(eyePos, target->m_vOldOrigin()))
+            return;
+    }
+    */
 
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastShot).count();
 

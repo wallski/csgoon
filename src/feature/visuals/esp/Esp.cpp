@@ -7,6 +7,7 @@
 
 void ESP::Render()
 {
+    // Master switch - if off, render nothing
     if (!Globals::esp_enabled)
         return;
 
@@ -19,28 +20,68 @@ void ESP::Render()
     if (!localPawn)
         return;
 
-    const ImU32 boxCol = ImGui::ColorConvertFloat4ToU32(ImVec4(
-        Globals::esp_box_color[0], Globals::esp_box_color[1],
-        Globals::esp_box_color[2], Globals::esp_box_color[3]
-    ));
-    const ImU32 skelCol = ImGui::ColorConvertFloat4ToU32(ImVec4(
-        Globals::esp_skeleton_color[0], Globals::esp_skeleton_color[1],
-        Globals::esp_skeleton_color[2], Globals::esp_skeleton_color[3]
-    ));
-    const ImU32 nameCol = ImGui::ColorConvertFloat4ToU32(ImVec4(
-        Globals::esp_name_color[0], Globals::esp_name_color[1],
-        Globals::esp_name_color[2], Globals::esp_name_color[3]
-    ));
-
     for (const auto& ent : entities)
     {
         C_CSPlayerPawn* pawn = ent.pawn;
         if (!pawn || !pawn->IsAlive())
             continue;
 
-        if (Globals::esp_enemy_only && pawn->m_iTeamNum() == localPawn->m_iTeamNum())
+        // Use pre-calculated team relationship from EntityManager
+        bool isEnemy = ent.isEnemy;
+
+        // Filter based on team-specific enabled flags
+        if (isEnemy && !Globals::esp_enemy_enabled)
+            continue;
+        if (!isEnemy && !Globals::esp_team_enabled)
             continue;
 
+        // Select colors and settings based on team
+        ImU32 boxCol, skelCol, fillCol;
+        bool renderBox, renderCornerBox, renderFill, renderHealth, renderSkeleton;
+        float boxThick;
+
+        if (isEnemy) {
+            // Enemy colors
+            boxCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_box_color[0], Globals::esp_box_color[1],
+                    Globals::esp_box_color[2], Globals::esp_box_color[3]));
+            skelCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_skeleton_color[0], Globals::esp_skeleton_color[1],
+                    Globals::esp_skeleton_color[2], Globals::esp_skeleton_color[3]));
+            fillCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_box_fill_color[0], Globals::esp_box_fill_color[1],
+                    Globals::esp_box_fill_color[2], Globals::esp_box_fill_color[3]));
+
+            // Enemy settings
+            renderBox = Globals::esp_box;
+            renderCornerBox = Globals::esp_corner_box;
+            renderFill = Globals::esp_box_fill;
+            renderHealth = Globals::esp_health;
+            renderSkeleton = Globals::esp_skeleton;
+            boxThick = Globals::esp_box_thickness;
+        }
+        else {
+            // Team colors
+            boxCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_team_box_color[0], Globals::esp_team_box_color[1],
+                    Globals::esp_team_box_color[2], Globals::esp_team_box_color[3]));
+            skelCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_team_skeleton_color[0], Globals::esp_team_skeleton_color[1],
+                    Globals::esp_team_skeleton_color[2], Globals::esp_team_skeleton_color[3]));
+            fillCol = ImGui::ColorConvertFloat4ToU32(
+                ImVec4(Globals::esp_team_box_fill_color[0], Globals::esp_team_box_fill_color[1],
+                    Globals::esp_team_box_fill_color[2], Globals::esp_team_box_fill_color[3]));
+
+            // Team settings
+            renderBox = Globals::esp_team_box;
+            renderCornerBox = Globals::esp_team_corner_box;
+            renderFill = Globals::esp_team_box_fill;
+            renderHealth = Globals::esp_team_health;
+            renderSkeleton = Globals::esp_team_skeleton;
+            boxThick = Globals::esp_box_team_thickness;
+        }
+
+        // Get positions
         Vector feet = pawn->m_vOldOrigin();
         Vector head = Utils::GetBonePos(pawn, BoneID::Head);
         if (head.IsZero())
@@ -61,46 +102,30 @@ void ESP::Render()
         float x = sHead.x - w * 0.5f;
         float y = sHead.y;
 
-        if (Globals::esp_box_fill) {
-            ImU32 fillCol = ImGui::ColorConvertFloat4ToU32(ImVec4(
-                Globals::esp_box_fill_color[0],
-                Globals::esp_box_fill_color[1],
-                Globals::esp_box_fill_color[2],
-                Globals::esp_box_fill_color[3]
-            ));
+        // Render ESP features
+        if (renderFill)
             dl->AddRectFilled({ x, y }, { x + w, y + h }, fillCol);
-        }
 
-
-        if (Globals::esp_box)
+        if (renderBox)
         {
-            dl->AddRect({ x, y }, { x + w, y + h }, boxCol, 0.f, 0, Globals::esp_box_thickness);
+            dl->AddRect({ x, y }, { x + w, y + h }, boxCol, 0.f, 0, boxThick);
             dl->AddRect({ x - 1, y - 1 }, { x + w + 1, y + h + 1 }, IM_COL32(0, 0, 0, 220));
         }
 
-        if (Globals::esp_corner_box)
+        if (renderCornerBox)
         {
             float cl = w * 0.25f;
-
-            // top-left
-            dl->AddLine({ x, y }, { x + cl, y }, boxCol, Globals::esp_box_thickness);
-            dl->AddLine({ x, y }, { x, y + cl }, boxCol, Globals::esp_box_thickness);
-
-            // top-right
-            dl->AddLine({ x + w, y }, { x + w - cl, y }, boxCol, Globals::esp_box_thickness);
-            dl->AddLine({ x + w, y }, { x + w, y + cl }, boxCol, Globals::esp_box_thickness);
-
-            // bottom-left
-            dl->AddLine({ x, y + h }, { x + cl, y + h }, boxCol, Globals::esp_box_thickness);
-            dl->AddLine({ x, y + h }, { x, y + h - cl }, boxCol, Globals::esp_box_thickness);
-
-            // bottom-right
-            dl->AddLine({ x + w, y + h }, { x + w - cl, y + h }, boxCol, Globals::esp_box_thickness);
-            dl->AddLine({ x + w, y + h }, { x + w, y + h - cl }, boxCol, Globals::esp_box_thickness);
+            dl->AddLine({ x,     y }, { x + cl,    y }, boxCol, boxThick);
+            dl->AddLine({ x,     y }, { x,         y + cl }, boxCol, boxThick);
+            dl->AddLine({ x + w, y }, { x + w - cl,y }, boxCol, boxThick);
+            dl->AddLine({ x + w, y }, { x + w,     y + cl }, boxCol, boxThick);
+            dl->AddLine({ x,     y + h }, { x + cl,    y + h }, boxCol, boxThick);
+            dl->AddLine({ x,     y + h }, { x,         y + h - cl }, boxCol, boxThick);
+            dl->AddLine({ x + w, y + h }, { x + w - cl,y + h }, boxCol, boxThick);
+            dl->AddLine({ x + w, y + h }, { x + w,     y + h - cl }, boxCol, boxThick);
         }
 
-
-        if (Globals::esp_health)
+        if (renderHealth)
         {
             int hp = pawn->m_iHealth();
             float hpFrac = std::clamp(hp / 100.f, 0.f, 1.f);
@@ -110,19 +135,7 @@ void ESP::Render()
             dl->AddRectFilled({ x - 5, y + h - hpH }, { x - 3, y + h }, IM_COL32(0, 255, 0, 255));
         }
 
-        /*
-        if (Globals::esp_name && ent.controller)
-        {
-            char nameBuf[64]{};
-            uintptr_t namePtr = reinterpret_cast<uintptr_t>(ent.controller->m_iszPlayerName());
-            if (Utils::SafeReadString(namePtr, nameBuf))
-            {
-                ImVec2 ts = ImGui::CalcTextSize(nameBuf);
-                dl->AddText({ x + (w - ts.x) * 0.5f, y - ts.y - 2 }, nameCol, nameBuf);
-            }
-        }
-        */
-        if (Globals::esp_skeleton)
+        if (renderSkeleton)
         {
             const float thick = Globals::esp_skeleton_thickness;
 

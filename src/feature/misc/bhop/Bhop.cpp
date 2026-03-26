@@ -15,13 +15,13 @@ void BunnyHop::Run() {
     bool onGround = flags & (1 << 0);
 
     uintptr_t movServices = *reinterpret_cast<uintptr_t*>(
-        reinterpret_cast<uintptr_t>(local) + Offsets::m_pMovementServices
+        reinterpret_cast<uintptr_t>(local) + Offsets::CPlayer_MovementServices::m_pMovementServices
         );
 
     if (!movServices)
         return;
 
-    uint64_t* buttons = reinterpret_cast<uint64_t*>(movServices + Offsets::m_nButtons);
+    uint64_t* buttons = reinterpret_cast<uint64_t*>(movServices + Offsets::CInButtonState::m_nButtons);
 
     if (!onGround)
         *buttons |= (1ULL << 1);

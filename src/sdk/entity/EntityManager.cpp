@@ -7,7 +7,7 @@
 EntityManager::EntityManager()
 {
     uintptr_t client = Memory::GetModuleBase("client.dll");
-    entityListAddress = client ? client + Offsets::dwEntityList : 0;
+    entityListAddress = client ? client + Offsets::v_angle::dwEntityList : 0;
 }
 
 EntityManager& EntityManager::Get()
@@ -31,7 +31,7 @@ void EntityManager::Update()
 
     if (client)
     {
-        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(client + Offsets::dwLocalPlayerPawn);
+        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(client + Offsets::v_angle::dwLocalPlayerPawn);
         currentLocalPawn = reinterpret_cast<C_CSPlayerPawn*>(localPawnAddr);
     }
 
