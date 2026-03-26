@@ -150,6 +150,7 @@
     <ClInclude Include="ext\minhook\MinHook.h" />
     <ClInclude Include="ext\minhook\trampoline.h" />
     <ClInclude Include="src\core\Hooks.h" />
+    <ClInclude Include="src\core\InputHook.h" />
     <ClInclude Include="src\feature\combat\Combat.h" />
     <ClInclude Include="src\feature\combat\legitbot\Aimbot.h" />
     <ClInclude Include="src\feature\combat\ragebot\ragebot.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="ext\minhook\hook.c" />
     <ClCompile Include="ext\minhook\trampoline.c" />
     <ClCompile Include="src\core\Hooks.cpp" />
+    <ClCompile Include="src\core\InputHook.cpp" />
     <ClCompile Include="src\core\Main.cpp" />
     <ClCompile Include="src\feature\combat\Combat.cpp" />
     <ClCompile Include="src\feature\combat\legitbot\Aimbot.cpp" />
@@ -196,6 +198,7 @@
     <ClCompile Include="src\feature\visuals\esp\Esp.cpp" />
     <ClCompile Include="src\feature\visuals\Visuals.cpp" />
     <ClCompile Include="src\menu\Menu.cpp" />
+    <ClCompile Include="src\sdk\entity\Classes.cpp" />
     <ClCompile Include="src\sdk\entity\EntityManager.cpp" />
     <ClCompile Include="src\sdk\memory\PatternScan.cpp" />
   </ItemGroup>

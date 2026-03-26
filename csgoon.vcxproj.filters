@@ -123,6 +123,9 @@
     <ClInclude Include="src\feature\misc\configs\Configs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\InputHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ext\imgui\imgui.cpp">
@@ -204,6 +207,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\feature\misc\configs\Configs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\InputHook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdk\entity\Classes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
