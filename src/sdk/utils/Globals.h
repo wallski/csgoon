@@ -66,13 +66,15 @@ namespace Globals
     inline int   ScreenHeight = 0;
 
     // ── Ragebot ───────────────────────────────────────────────────────────────
-    inline bool  rage_enabled = false;
-    inline bool  rage_silent = false;
-    inline bool  rage_autoshoot = false;
-    inline bool  rage_multipoint = false;
-    inline float rage_hitchance = 80.0f;
-    inline float rage_mindmg = 20.0f;
-    inline float rage_fov = 30.0f;
+inline bool  rage_enabled = false;
+inline bool  rage_lock = false;
+inline bool  rage_silent = false;
+inline bool  rage_autoshoot = false;
+inline bool  rage_multipoint = false;
+inline int rage_key = 0;
+inline float rage_hitchance = 80.0f;
+inline float rage_mindmg = 20.0f;
+inline float rage_fov = 30.0f;
 
     // ── Legitbot ──────────────────────────────────────────────────────────────
     inline bool  legit_enabled = false;

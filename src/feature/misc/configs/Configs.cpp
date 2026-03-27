@@ -104,6 +104,7 @@ void Configs::Save(const std::string& name) {
     file << "rage_hitchance=" << Globals::rage_hitchance << "\n";
     file << "rage_mindmg=" << Globals::rage_mindmg << "\n";
     file << "rage_fov=" << Globals::rage_fov << "\n";
+    file << "rage_key=" << Globals::rage_key << "\n";
 
 
     // legitbot
@@ -226,6 +227,7 @@ void Configs::Load(const std::string& name) {
             else if (key == "rage_multipoint")       Globals::rage_multipoint = val == "1";
             else if (key == "rage_hitchance")        Globals::rage_hitchance = std::stof(val);
             else if (key == "rage_mindmg")           Globals::rage_mindmg = std::stof(val);
+            else if (key == "rage_key")              Globals::rage_key = std::stoi(val);
             else if (key == "rage_fov")             Globals::rage_fov = std::stof(val);
 
             // legitbot
@@ -341,6 +343,7 @@ void Configs::Reset() {
     Globals::rage_hitchance = 80.0f;
     Globals::rage_mindmg = 20.0f;
     Globals::rage_fov = 5.0f;
+    Globals::rage_key = 0;
 
     // Legitbot
     Globals::legit_enabled = false;

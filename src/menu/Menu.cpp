@@ -366,10 +366,53 @@ void Menu::Render() {
             section("ragebot");
             feature("enable", &Globals::rage_enabled);
             if (Globals::rage_enabled) Globals::legit_enabled = false;
+            feature("rage lock", &Globals::rage_lock);
             feature("silent aim", &Globals::rage_silent);
             feature("team check", &Globals::aim_team_check);
             feature("auto shoot", &Globals::rage_autoshoot);
             feature("multipoint", &Globals::rage_multipoint);
+
+            // Ragebot keybind picker only when rage lock is enabled and silent aim is off
+            if (Globals::rage_lock && !Globals::rage_silent) {
+                ImGui::Indent(12);
+                static bool waitingForRageKey = false;
+                static bool waitingForKeyRelease = false;
+                if (waitingForRageKey) {
+                    ImGui::Button("press any key...", { 140, 0 });
+                    // Wait for all keys to be released before accepting a new key
+                    if (!waitingForKeyRelease) {
+                        bool anyDown = false;
+                        for (int i = 0; i < 256; i++) {
+                            if (GetAsyncKeyState(i) & 0x8000) {
+                                anyDown = true;
+                                break;
+                            }
+                        }
+                        if (!anyDown) waitingForKeyRelease = true;
+                    } else {
+                        for (int i = 0; i < 256; i++) {
+                            if (i == VK_LBUTTON || i == VK_ESCAPE) continue;
+                            if (GetAsyncKeyState(i) & 0x8000) {
+                                Globals::rage_key = i;
+                                waitingForRageKey = false;
+                                waitingForKeyRelease = false;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    if (ImGui::Button("bind key", { 80, 0 })) {
+                        waitingForRageKey = true;
+                        waitingForKeyRelease = false;
+                    }
+                    ImGui::SameLine(0, 6);
+                    if (ImGui::Button("clear", { 46, 0 })) Globals::rage_key = 0;
+                    ImGui::Spacing();
+                    ImGui::TextColored(ImColor(Style::text_muted), "vk: 0x%02X", Globals::rage_key);
+                }
+                ImGui::Unindent(12);
+            }
+
             end_col();
         }
         if (begin_col("rage_r", cw, true)) {

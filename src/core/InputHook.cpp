@@ -18,15 +18,10 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
         );
 
     // Rage silent aim - modifies cmd only, visual angles unchanged
-    if (InputHook::g_hasRageAngles && (GetAsyncKeyState(VK_LBUTTON) & 0x8000)) {
+    if (InputHook::g_hasRageAngles) {
         *cmdAngles = InputHook::g_rageAngles;
-
-        // Keep angles while holding mouse, clear on release
-        if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) {
-            InputHook::g_hasRageAngles = false;
-        }
+        InputHook::g_hasRageAngles = false;
     }
-    // Legit aim - smooth, modifies cmd
     else if (InputHook::g_hasAimAngles) {
         *cmdAngles = InputHook::g_aimAngles;
         InputHook::g_hasAimAngles = false;

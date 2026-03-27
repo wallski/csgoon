@@ -63,8 +63,8 @@ void RageAimbot::Run() {
     if (Globals::rage_silent) {
         InputHook::SetRageAngles(targetAngle, true);
     }
-    // Non-silent: direct angle write (aimlock)
-    else {
+    // Non-silent: direct angle write (aimlock) only when rage_lock is enabled and holding rage key
+    else if (Globals::rage_lock && Globals::rage_key != 0 && (GetAsyncKeyState(Globals::rage_key) & 0x8000)) {
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
         uintptr_t client = Memory::GetModuleBase("client.dll");
 
