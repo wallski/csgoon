@@ -1,3 +1,10 @@
+#include "./legitbot/Aimbot.h"
 #include "Combat.h"
-// Shared combat utilities — FindTarget is header-only inline.
-// Add any non-inline combat helpers here.
+#include "ragebot/ragebot.h"
+#include "triggerbot/triggerbot.h"
+
+void Combat::Run() {
+	Aimbot::Run();
+	RageAimbot::Run();
+	Triggerbot::Run();;
+}

@@ -4,8 +4,13 @@
 #include "../../sdk/utils/Globals.h"
 #include "../../sdk/entity/EntityManager.h"
 
+
+
 namespace Combat
 {
+
+    void Run();
+
     // Shared target-finding logic used by both legitbot and ragebot.
     // Returns the closest enemy to crosshair within fov_limit degrees.
     // outAngle is set to the exact angle toward the chosen bone.

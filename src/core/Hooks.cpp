@@ -94,7 +94,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
     memcpy(
         &Globals::ViewMatrix,
-        (void*)(Globals::ClientBase + Offsets::v_angle::dwViewMatrix),
+        (void*)(Globals::ClientBase + Offsets::client_dll::dwViewMatrix),
         sizeof(Globals::ViewMatrix)
     );
 

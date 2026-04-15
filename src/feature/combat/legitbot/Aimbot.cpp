@@ -62,6 +62,6 @@ void Aimbot::Run() {
         Utils::NormalizeAngles(finalAngle);
 
         *reinterpret_cast<Vector*>(reinterpret_cast<uintptr_t>(local) + Offsets::QAngle::v_angle) = finalAngle;
-        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::v_angle::dwViewAngles) = finalAngle;
+        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::client_dll::dwViewAngles) = finalAngle;
     }
 }

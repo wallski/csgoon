@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <cstddef>
 
 namespace Offsets
 {
@@ -3255,22 +3256,22 @@ namespace Offsets
     // ============================================
     namespace buttons
     {
-        constexpr std::ptrdiff_t attack = 0x2063760;
-        constexpr std::ptrdiff_t attack2 = 0x20637F0;
-        constexpr std::ptrdiff_t back = 0x2063A30;
-        constexpr std::ptrdiff_t duck = 0x2063D00;
-        constexpr std::ptrdiff_t forward = 0x20639A0;
-        constexpr std::ptrdiff_t jump = 0x2063C70;
-        constexpr std::ptrdiff_t left = 0x2063AC0;
-        constexpr std::ptrdiff_t lookatweapon = 0x231B200;
-        constexpr std::ptrdiff_t reload = 0x20636D0;
-        constexpr std::ptrdiff_t right = 0x2063B50;
-        constexpr std::ptrdiff_t showscores = 0x231B0E0;
-        constexpr std::ptrdiff_t sprint = 0x2063640;
-        constexpr std::ptrdiff_t turnleft = 0x2063880;
-        constexpr std::ptrdiff_t turnright = 0x2063910;
-        constexpr std::ptrdiff_t use = 0x2063BE0;
-        constexpr std::ptrdiff_t zoom = 0x231B170;
+        constexpr std::ptrdiff_t attack = 0x2066760;
+        constexpr std::ptrdiff_t attack2 = 0x20667F0;
+        constexpr std::ptrdiff_t back = 0x2066A30;
+        constexpr std::ptrdiff_t duck = 0x2066D00;
+        constexpr std::ptrdiff_t forward = 0x20669A0;
+        constexpr std::ptrdiff_t jump = 0x2066C70;
+        constexpr std::ptrdiff_t left = 0x2066AC0;
+        constexpr std::ptrdiff_t lookatweapon = 0x231E250;
+        constexpr std::ptrdiff_t reload = 0x20666D0;
+        constexpr std::ptrdiff_t right = 0x2066B50;
+        constexpr std::ptrdiff_t showscores = 0x231E130;
+        constexpr std::ptrdiff_t sprint = 0x2066640;
+        constexpr std::ptrdiff_t turnleft = 0x2066880;
+        constexpr std::ptrdiff_t turnright = 0x2066910;
+        constexpr std::ptrdiff_t use = 0x2066BE0;
+        constexpr std::ptrdiff_t zoom = 0x231E1C0;
     }
 
     // ============================================
@@ -3310,25 +3311,25 @@ namespace Offsets
     // ============================================
     // Context: client_dll
     // ============================================
-    namespace v_angle
+    namespace client_dll
     {
-        constexpr std::ptrdiff_t dwCSGOInput = 0x231B2E0;
-        constexpr std::ptrdiff_t dwEntityList = 0x24B0258;
-        constexpr std::ptrdiff_t dwGameEntitySystem = 0x24B0258;
+        constexpr std::ptrdiff_t dwCSGOInput = 0x231E330;
+        constexpr std::ptrdiff_t dwEntityList = 0x24B3268;
+        constexpr std::ptrdiff_t dwGameEntitySystem = 0x24B3268;
         constexpr std::ptrdiff_t dwGameEntitySystem_highestEntityIndex = 0x20A0;
-        constexpr std::ptrdiff_t dwGameRules = 0x230EED0;
-        constexpr std::ptrdiff_t dwGlobalVars = 0x205F540;
-        constexpr std::ptrdiff_t dwGlowManager = 0x230BCD8;
-        constexpr std::ptrdiff_t dwLocalPlayerController = 0x22F5028;
-        constexpr std::ptrdiff_t dwLocalPlayerPawn = 0x206A9E0;
-        constexpr std::ptrdiff_t dwPlantedC4 = 0x2318A60;
-        constexpr std::ptrdiff_t dwPrediction = 0x206A8F0;
-        constexpr std::ptrdiff_t dwSensitivity = 0x230C7E8;
+        constexpr std::ptrdiff_t dwGameRules = 0x2311ED0;
+        constexpr std::ptrdiff_t dwGlobalVars = 0x2062540;
+        constexpr std::ptrdiff_t dwGlowManager = 0x230ECD8;
+        constexpr std::ptrdiff_t dwLocalPlayerController = 0x22F8028;
+        constexpr std::ptrdiff_t dwLocalPlayerPawn = 0x206D9E0;
+        constexpr std::ptrdiff_t dwPlantedC4 = 0x231BAB0;
+        constexpr std::ptrdiff_t dwPrediction = 0x206D8F0;
+        constexpr std::ptrdiff_t dwSensitivity = 0x230F7E8;
         constexpr std::ptrdiff_t dwSensitivity_sensitivity = 0x58;
-        constexpr std::ptrdiff_t dwViewAngles = 0x231B968;
-        constexpr std::ptrdiff_t dwViewMatrix = 0x2310F10;
-        constexpr std::ptrdiff_t dwViewRender = 0x2311328;
-        constexpr std::ptrdiff_t dwWeaponC4 = 0x229A2B0;
+        constexpr std::ptrdiff_t dwViewAngles = 0x231E9B8;
+        constexpr std::ptrdiff_t dwViewMatrix = 0x2313F10;
+        constexpr std::ptrdiff_t dwViewRender = 0x2314328;
+        constexpr std::ptrdiff_t dwWeaponC4 = 0x229D2B0;
     }
 
     // ============================================

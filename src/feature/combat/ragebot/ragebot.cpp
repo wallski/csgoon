@@ -44,6 +44,6 @@ void RageAimbot::Run() {
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
 
         *reinterpret_cast<Vector*>(localPtr + Offsets::QAngle::v_angle) = targetAngle;
-        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::v_angle::dwViewAngles) = targetAngle;
+        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::client_dll::dwViewAngles) = targetAngle;
     }
 }

@@ -23,7 +23,7 @@ void EntityManager::Update()
 {
     // Lazily resolve entity list address from cached base
     if (!entityListAddress && Globals::ClientBase)
-        entityListAddress = Globals::ClientBase + Offsets::v_angle::dwEntityList;
+        entityListAddress = Globals::ClientBase + Offsets::client_dll::dwEntityList;
 
     if (!entityListAddress)
         return;
@@ -36,7 +36,7 @@ void EntityManager::Update()
 
     if (Globals::ClientBase)
     {
-        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(Globals::ClientBase + Offsets::v_angle::dwLocalPlayerPawn);
+        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(Globals::ClientBase + Offsets::client_dll::dwLocalPlayerPawn);
         currentLocalPawn = reinterpret_cast<C_CSPlayerPawn*>(localPawnAddr);
     }
 

@@ -126,8 +126,8 @@ namespace Utils
     inline bool IsInSmoke(Vector from, Vector to) {
         uintptr_t client = Memory::GetModuleBase("client.dll");
 
-        uintptr_t listPtr = *reinterpret_cast<uintptr_t*>(client + Offsets::v_angle::dwEntityList);
-        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::v_angle::dwGameEntitySystem_highestEntityIndex);
+        uintptr_t listPtr = *reinterpret_cast<uintptr_t*>(client + Offsets::client_dll::dwEntityList);
+        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::client_dll::dwGameEntitySystem_highestEntityIndex);
 
         if (highestIndex <= 0 || highestIndex > 32768)
             return false;
