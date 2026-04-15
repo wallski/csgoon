@@ -16,11 +16,11 @@
 
 #pragma comment(lib, "d3d11.lib")
 
-static ID3D11Device* g_Device = nullptr;
-static ID3D11DeviceContext* g_Context = nullptr;
-static ID3D11RenderTargetView* g_RTV = nullptr;
-static HWND                     g_Window = nullptr;
-static bool                     g_Init = false;
+static ID3D11Device*            g_Device  = nullptr;
+static ID3D11DeviceContext*     g_Context = nullptr;
+static ID3D11RenderTargetView*  g_RTV     = nullptr;
+static HWND                     g_Window  = nullptr;
+static bool                     g_Init    = false;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
     HWND, UINT, WPARAM, LPARAM
@@ -76,18 +76,25 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
         ImGui_ImplWin32_Init(g_Window);
         ImGui_ImplDX11_Init(g_Device, g_Context);
 
-        g_Init = true;
+        // Cache module base once — no more per-frame GetModuleHandleA
+        Globals::ClientBase = Memory::GetModuleBase("client.dll");
 
+        g_Init = true;
     }
+
     if (Globals::g_Unloading)
+    {
+        // Signal Destroy() that we are done with this frame
+        if (Hooks::g_FrameEvent)
+            SetEvent(Hooks::g_FrameEvent);
         return oPresent(swapChain, sync, flags);
+    }
 
     EntityManager::Get().Update();
 
-    uintptr_t client = Memory::GetModuleBase("client.dll");
     memcpy(
         &Globals::ViewMatrix,
-        (void*)(client + Offsets::v_angle::dwViewMatrix),
+        (void*)(Globals::ClientBase + Offsets::v_angle::dwViewMatrix),
         sizeof(Globals::ViewMatrix)
     );
 
@@ -121,22 +128,28 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
     g_Context->OMSetRenderTargets(1, &g_RTV, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    return oPresent(swapChain, sync, flags);
+    HRESULT hr = oPresent(swapChain, sync, flags);
+
+    // Signal frame completion so Destroy() can safely proceed
+    if (Hooks::g_FrameEvent)
+        SetEvent(Hooks::g_FrameEvent);
+
+    return hr;
 }
 
 void Hooks::Setup()
 {
-
+    // Create the frame-sync event (auto-reset)
+    Hooks::g_FrameEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 
     if (MH_Initialize() != MH_OK) {
         return;
     }
 
-
     WNDCLASSEXW wc{};
-    wc.cbSize = sizeof(wc);
-    wc.lpfnWndProc = DefWindowProcW;
-    wc.hInstance = GetModuleHandleW(nullptr);
+    wc.cbSize        = sizeof(wc);
+    wc.lpfnWndProc   = DefWindowProcW;
+    wc.hInstance     = GetModuleHandleW(nullptr);
     wc.lpszClassName = L"DummyDX";
 
     RegisterClassExW(&wc);
@@ -150,18 +163,18 @@ void Hooks::Setup()
     );
 
     DXGI_SWAP_CHAIN_DESC sd{};
-    sd.BufferCount = 1;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hwnd;
-    sd.SampleDesc.Count = 1;
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    sd.BufferCount          = 1;
+    sd.BufferDesc.Format    = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferUsage          = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.OutputWindow         = hwnd;
+    sd.SampleDesc.Count     = 1;
+    sd.Windowed             = TRUE;
+    sd.SwapEffect           = DXGI_SWAP_EFFECT_DISCARD;
 
-    IDXGISwapChain* sc = nullptr;
-    ID3D11Device* dev = nullptr;
+    IDXGISwapChain*     sc  = nullptr;
+    ID3D11Device*       dev = nullptr;
     ID3D11DeviceContext* ctx = nullptr;
-    D3D_FEATURE_LEVEL fl;
+    D3D_FEATURE_LEVEL   fl;
 
     if (SUCCEEDED(D3D11CreateDeviceAndSwapChain(
         nullptr,
@@ -177,8 +190,8 @@ void Hooks::Setup()
         &fl,
         &ctx)))
     {
-        void** vtable = *reinterpret_cast<void***>(sc);
-        void* present = vtable[8];
+        void** vtable  = *reinterpret_cast<void***>(sc);
+        void*  present = vtable[8];
 
         MH_CreateHook(present, &hkPresent, reinterpret_cast<void**>(&oPresent));
         MH_EnableHook(MH_ALL_HOOKS);
@@ -191,20 +204,22 @@ void Hooks::Setup()
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
-
-
-
     InputHook::Setup();
-
-
 }
 
 void Hooks::Destroy()
 {
     Globals::g_Unloading = true;
-    Sleep(100);
 
-    // Destroy input hook first
+    // Wait for the current frame to finish instead of blind Sleep(100)
+    if (Hooks::g_FrameEvent)
+    {
+        // Give it up to 500ms — way more than one frame ever takes
+        WaitForSingleObject(Hooks::g_FrameEvent, 500);
+        CloseHandle(Hooks::g_FrameEvent);
+        Hooks::g_FrameEvent = nullptr;
+    }
+
     InputHook::Destroy();
 
     MH_DisableHook(MH_ALL_HOOKS);

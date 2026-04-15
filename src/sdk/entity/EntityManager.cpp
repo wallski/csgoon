@@ -1,13 +1,15 @@
 #include "EntityManager.h"
 #include "../memory/PatternScan.h"
 #include "../memory/Offsets.h"
+#include "../utils/Globals.h"
 #include <chrono>
 #include <iostream>
 
 EntityManager::EntityManager()
 {
-    uintptr_t client = Memory::GetModuleBase("client.dll");
-    entityListAddress = client ? client + Offsets::v_angle::dwEntityList : 0;
+    // entityListAddress is resolved from ClientBase once it's cached.
+    // If ClientBase isn't set yet (early init), Update() will handle it.
+    entityListAddress = 0;
 }
 
 EntityManager& EntityManager::Get()
@@ -19,6 +21,10 @@ EntityManager& EntityManager::Get()
 
 void EntityManager::Update()
 {
+    // Lazily resolve entity list address from cached base
+    if (!entityListAddress && Globals::ClientBase)
+        entityListAddress = Globals::ClientBase + Offsets::v_angle::dwEntityList;
+
     if (!entityListAddress)
         return;
 
@@ -26,12 +32,11 @@ void EntityManager::Update()
     if (!listPtr)
         return;
 
-    uintptr_t client = Memory::GetModuleBase("client.dll");
     C_CSPlayerPawn* currentLocalPawn = nullptr;
 
-    if (client)
+    if (Globals::ClientBase)
     {
-        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(client + Offsets::v_angle::dwLocalPlayerPawn);
+        uintptr_t localPawnAddr = *reinterpret_cast<uintptr_t*>(Globals::ClientBase + Offsets::v_angle::dwLocalPlayerPawn);
         currentLocalPawn = reinterpret_cast<C_CSPlayerPawn*>(localPawnAddr);
     }
 
@@ -73,9 +78,9 @@ void EntityManager::Update()
 
         Entity_t ent{};
         ent.controller = controller;
-        ent.pawn = pawn;
-        ent.index = i;
-        ent.isEnemy = currentLocalPawn && pawn->m_iTeamNum() != currentLocalPawn->m_iTeamNum();
+        ent.pawn       = pawn;
+        ent.index      = i;
+        ent.isEnemy    = currentLocalPawn && pawn->m_iTeamNum() != currentLocalPawn->m_iTeamNum();
 
         temp.push_back(ent);
     }
