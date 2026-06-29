@@ -5,6 +5,7 @@
 #include "../../../sdk/utils/Globals.h"
 #include "../../../sdk/utils/Vector.h"
 #include "../../../sdk/utils/Utils.h"
+#include "../../../sdk/memory/PatternScan.h"
 #include "../../../sdk/memory/Offsets.h"
 #include "../../../core/InputHook.h"
 #include <Windows.h>
@@ -42,8 +43,8 @@ void RageAimbot::Run() {
     // Non-silent: direct angle write (aimlock) only when rage_lock + key held
     else if (Globals::rage_lock && Globals::rage_key != 0 && (GetAsyncKeyState(Globals::rage_key) & 0x8000)) {
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
-
-        *reinterpret_cast<Vector*>(localPtr + Offsets::QAngle::v_angle) = targetAngle;
-        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::client_dll::dwViewAngles) = targetAngle;
+        Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, targetAngle);
+        if (Globals::ClientBase)
+            Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, targetAngle);
     }
 }

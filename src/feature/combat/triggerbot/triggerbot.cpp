@@ -2,10 +2,9 @@
 #include "../../../sdk/entity/EntityManager.h"
 #include "../../../sdk/utils/Globals.h"
 #include "../../../sdk/memory/Offsets.h"
+#include "../../../sdk/memory/PatternScan.h"
 #include "../../../sdk/utils/Utils.h"
 #include <chrono>
-
-
 
 
 void Triggerbot::Run() {
@@ -34,22 +33,44 @@ void Triggerbot::Run() {
     }
 
     C_CSPlayerPawn* local = EntityManager::Get().GetLocalPawn();
-    if (!local)
+    if (!local || !Memory::IsValidPtr(reinterpret_cast<uintptr_t>(local)))
         return;
 
     static auto lastShot = std::chrono::steady_clock::now();
     static bool wasAiming = false;
 
-    int entIndex = local->m_iIDEntIndex();
-
-    if (entIndex <= 0) {
+    // Read the entity index the local player is currently looking at
+    int entIndex = 0;
+    if (!Memory::SafeRead(
+            reinterpret_cast<uintptr_t>(local) + Offsets::CEntityIndex::m_iIDEntIndex,
+            entIndex)
+        || entIndex <= 0)
+    {
         wasAiming = false;
         return;
     }
 
     C_CSPlayerPawn* target = EntityManager::Get().GetPawnFromHandle(entIndex);
+    if (!target || !Memory::IsValidPtr(reinterpret_cast<uintptr_t>(target)))
+    {
+        wasAiming = false;
+        return;
+    }
 
-    if (!target || !target->IsAlive() || target->m_iTeamNum() == local->m_iTeamNum()) {
+    // Safe-read health and team to avoid crashing on freed pawn
+    int targetHealth = 0;
+    Memory::SafeRead(reinterpret_cast<uintptr_t>(target) + Offsets::int32::m_iHealth, targetHealth);
+    if (targetHealth <= 0)
+    {
+        wasAiming = false;
+        return;
+    }
+
+    int targetTeam = 0, localTeam = 0;
+    Memory::SafeRead(reinterpret_cast<uintptr_t>(target) + Offsets::uint8::m_iTeamNum, targetTeam);
+    Memory::SafeRead(reinterpret_cast<uintptr_t>(local)  + Offsets::uint8::m_iTeamNum, localTeam);
+    if (targetTeam == localTeam)
+    {
         wasAiming = false;
         return;
     }
@@ -62,9 +83,14 @@ void Triggerbot::Run() {
     }
     
     if (Globals::trigger_smoke_check) {
-        // Use the real eye position (origin + view offset) instead of a magic +64
-        Vector eyePos = local->m_vOldOrigin() + local->m_vecViewOffset();
-        if (Utils::IsInSmoke(eyePos, target->m_vOldOrigin()))
+        Vector localOrigin{}, viewOffset{}, targetOrigin{};
+        uintptr_t localBase  = reinterpret_cast<uintptr_t>(local);
+        uintptr_t targetBase = reinterpret_cast<uintptr_t>(target);
+        Memory::SafeRead(localBase  + Offsets::Vector::m_vOldOrigin,                        localOrigin);
+        Memory::SafeRead(localBase  + Offsets::CNetworkViewOffsetVector::m_vecViewOffset,   viewOffset);
+        Memory::SafeRead(targetBase + Offsets::Vector::m_vOldOrigin,                        targetOrigin);
+        Vector eyePos = localOrigin + viewOffset;
+        if (Utils::IsInSmoke(eyePos, targetOrigin))
             return;
     }
 

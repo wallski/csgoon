@@ -2,19 +2,17 @@
 #include "../../../sdk/entity/EntityManager.h"
 #include "../../../sdk/utils/Globals.h"
 #include "../../../sdk/memory/Offsets.h"
+#include "../../../sdk/memory/PatternScan.h"
 
 // ── How NoFlash works ────────────────────────────────────────────────────────
-// CS2 stores two key floats on C_CSPlayerPawn that drive the flash screen
-// overlay:
-//   m_flFlashMaxAlpha    — peak opacity the flash reaches (0–255 range)
-//   m_flFlashOverlayAlpha — the current rendered alpha right now
+// CS2 stores floats on C_CSPlayerPawn that drive the flash screen overlay:
+//   m_flFlashMaxAlpha     — peak opacity the flash can reach (0-255)
+//   m_flFlashOverlayAlpha — current rendered alpha this frame
+//   m_flFlashBangTime     — expiry timestamp; zero = engine treats flash as done
 //
-// By zeroing both every frame we prevent any visible white-out from ever
-// appearing.  We also zero m_flFlashBangTime so the flash is treated as
-// expired, which stops the engine from replaying audio DSP filters tied to it.
-//
-// These are all on the LOCAL PAWN, not on the grenade entity, so we only need
-// the local pawn pointer — no entity list walk required.
+// SafeWrite is used for every write so if the pawn pointer becomes stale
+// between frames (round transition, map load) the write simply fails silently
+// instead of crashing.
 // ─────────────────────────────────────────────────────────────────────────────
 
 void NoFlash::Run()
@@ -23,19 +21,15 @@ void NoFlash::Run()
         return;
 
     C_CSPlayerPawn* local = EntityManager::Get().GetLocalPawn();
-    if (!local || !local->IsAlive())
+    if (!local)
         return;
 
     uintptr_t base = reinterpret_cast<uintptr_t>(local);
+    if (!Memory::IsValidPtr(base))
+        return;
 
-    // Peak alpha — if left non-zero the engine will keep trying to ramp up to it
-    float& maxAlpha     = *reinterpret_cast<float*>(base + Offsets::float32::m_flFlashMaxAlpha);
-    // Current rendered overlay alpha
-    float& overlayAlpha = *reinterpret_cast<float*>(base + Offsets::float32::m_flFlashOverlayAlpha);
-    // Expiry timestamp — zero it so the engine considers the flash done
-    float& bangTime     = *reinterpret_cast<float*>(base + Offsets::float32::m_flFlashBangTime);
-
-    maxAlpha     = 0.f;
-    overlayAlpha = 0.f;
-    bangTime     = 0.f;
+    // Use SafeWrite — if the pawn was freed this frame the write is a no-op
+    Memory::SafeWrite(base + Offsets::float32::m_flFlashMaxAlpha,     0.f);
+    Memory::SafeWrite(base + Offsets::float32::m_flFlashOverlayAlpha, 0.f);
+    Memory::SafeWrite(base + Offsets::float32::m_flFlashBangTime,     0.f);
 }

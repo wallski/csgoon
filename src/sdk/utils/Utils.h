@@ -125,42 +125,51 @@ namespace Utils
     }
 
     // Returns true if the line segment [from → to] passes through any active
-    // smoke grenade cloud.  Uses the cached Globals::ClientBase so we never
-    // call GetModuleHandleA inside a hot path.
+    // smoke grenade cloud.  Every pointer dereference goes through SafeRead so
+    // a bad entity pointer during round transitions is handled gracefully.
     inline bool IsInSmoke(Vector from, Vector to) {
-        uintptr_t client = Globals::ClientBase;  // cached once at init — free
+        uintptr_t client = Globals::ClientBase;
         if (!client)
             return false;
 
-        uintptr_t listPtr = *reinterpret_cast<uintptr_t*>(client + Offsets::client_dll::dwEntityList);
-        if (!listPtr)
+        uintptr_t listPtr = 0;
+        if (!Memory::SafeRead(client + Offsets::client_dll::dwEntityList, listPtr) || !listPtr)
             return false;
 
-        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::client_dll::dwGameEntitySystem_highestEntityIndex);
+        int highestIndex = 0;
+        if (!Memory::SafeRead(listPtr + Offsets::client_dll::dwGameEntitySystem_highestEntityIndex, highestIndex))
+            return false;
         if (highestIndex <= 0 || highestIndex > 32768)
             return false;
 
         for (int i = 0; i < highestIndex; ++i) {
-            uintptr_t listEntry = *reinterpret_cast<uintptr_t*>(listPtr + 8 * ((i & 0x7FFF) >> 9) + 16);
-            if (!listEntry) continue;
+            uintptr_t chunkAddr = listPtr + 8 * ((i & 0x7FFF) >> 9) + 16;
+            uintptr_t listEntry = 0;
+            if (!Memory::SafeRead(chunkAddr, listEntry) || !listEntry)
+                continue;
 
-            uintptr_t entity = *reinterpret_cast<uintptr_t*>(listEntry + 112 * (i & 0x1FF));
-            if (!entity) continue;
+            uintptr_t entity = 0;
+            if (!Memory::SafeRead(listEntry + 112 * (i & 0x1FF), entity) || !entity)
+                continue;
 
-            bool didSmoke = *reinterpret_cast<bool*>(entity + Offsets::bools::m_bDidSmokeEffect);
-            if (!didSmoke) continue;
+            if (!Memory::IsValidPtr(entity))
+                continue;
 
-            Vector smokePos = *reinterpret_cast<Vector*>(entity + Offsets::Vector::m_vSmokeDetonationPos);
-            if (smokePos.IsZero()) continue;
+            bool didSmoke = false;
+            if (!Memory::SafeRead(entity + Offsets::bools::m_bDidSmokeEffect, didSmoke) || !didSmoke)
+                continue;
 
-            // Point-to-segment distance test.
-            // Project smokePos onto the ray [from→to], clamp to the segment,
-            // then measure how far the grenade centre is from that closest point.
+            Vector smokePos{};
+            if (!Memory::SafeRead(entity + Offsets::Vector::m_vSmokeDetonationPos, smokePos))
+                continue;
+            if (smokePos.IsZero())
+                continue;
+
             Vector d = to - from;
             Vector w = smokePos - from;
 
             float dDotD = Dot(d, d);
-            if (dDotD < 1e-6f) continue;   // degenerate segment guard
+            if (dDotD < 1e-6f) continue;
 
             float t = Dot(w, d) / dDotD;
             t = std::clamp(t, 0.f, 1.f);
@@ -168,16 +177,18 @@ namespace Utils
             Vector closest = from + d * t;
             float dist = (smokePos - closest).Length();
 
-            if (dist < 150.f)   // 150 units ≈ smoke grenade radius in CS2
+            if (dist < 150.f)
                 return true;
         }
 
         return false;
     }
 
+    // IsValidPtr is now the canonical one from Memory namespace (PatternScan.h)
+    // Keep this thin alias so existing call sites compile unchanged.
     inline bool IsValidPtr(uintptr_t addr)
     {
-        return addr > 0x10000 && addr < 0x7FFFFFFFFFFF;
+        return Memory::IsValidPtr(addr);
     }
 
     inline void NormalizeAngles(Vector& a)
@@ -243,20 +254,40 @@ namespace Utils
         return true;
     }
 
+    // GetBonePos — every pointer step is validated with SafeRead.
+    // Returns zero-vector on any bad address instead of crashing.
     inline Vector GetBonePos(C_CSPlayerPawn* pawn, BoneID boneID)
     {
-        if (!pawn)
+        if (!pawn || !Memory::IsValidPtr(reinterpret_cast<uintptr_t>(pawn)))
             return {};
 
-        auto scene = reinterpret_cast<CGameSceneNode*>(pawn->m_pGameSceneNode());
-        if (!scene)
+        // Step 1: read scene node pointer off the pawn
+        uintptr_t sceneNodePtr = 0;
+        if (!Memory::SafeRead(
+                reinterpret_cast<uintptr_t>(pawn) + Offsets::CGameSceneNode::m_pGameSceneNode,
+                sceneNodePtr)
+            || !sceneNodePtr)
             return {};
 
-        uintptr_t boneArray = *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(scene) + Offsets::CModelState::m_modelState + 0x80);
-        if (!IsValidPtr(boneArray))
+        // Step 2: read modelState offset (points to CModelState inside scene node)
+        // The bone array pointer lives at modelState + 0x80
+        uintptr_t modelStateBase = sceneNodePtr + Offsets::CModelState::m_modelState;
+        uintptr_t boneArray = 0;
+        if (!Memory::SafeRead(modelStateBase + 0x80, boneArray)
+            || !Memory::IsValidPtr(boneArray))
             return {};
 
-        return *reinterpret_cast<Vector*>(boneArray + static_cast<int>(boneID) * 0x20);
+        // Step 3: read the bone position (32 bytes per bone: 12 bytes Vector + padding)
+        Vector pos{};
+        uintptr_t boneAddr = boneArray + static_cast<int>(boneID) * 0x20;
+        if (!Memory::SafeRead(boneAddr, pos))
+            return {};
+
+        // Guard against NaN/Inf that would break W2S math
+        if (!std::isfinite(pos.x) || !std::isfinite(pos.y) || !std::isfinite(pos.z))
+            return {};
+
+        return pos;
     }
 
     inline bool SafeReadString(uintptr_t addr, char* out, size_t maxLen = 64)

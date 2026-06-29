@@ -45,8 +45,10 @@ void Aimbot::Run() {
     }
 
     if (Globals::legit_lock) {
-        Vector currentAngle = *reinterpret_cast<Vector*>(
-            reinterpret_cast<uintptr_t>(local) + Offsets::QAngle::v_angle);
+        Vector currentAngle{};
+        uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
+        if (!Memory::SafeRead(localPtr + Offsets::QAngle::v_angle, currentAngle))
+            return;
 
         Vector delta = targetAngle - currentAngle;
         Utils::NormalizeAngles(delta);
@@ -61,7 +63,8 @@ void Aimbot::Run() {
         Vector finalAngle = currentAngle + delta * factor;
         Utils::NormalizeAngles(finalAngle);
 
-        *reinterpret_cast<Vector*>(reinterpret_cast<uintptr_t>(local) + Offsets::QAngle::v_angle) = finalAngle;
-        *reinterpret_cast<Vector*>(Globals::ClientBase + Offsets::client_dll::dwViewAngles) = finalAngle;
+        Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, finalAngle);
+        if (Globals::ClientBase)
+            Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, finalAngle);
     }
 }

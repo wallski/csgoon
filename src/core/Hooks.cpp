@@ -92,11 +92,21 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
     EntityManager::Get().Update();
 
-    memcpy(
-        &Globals::ViewMatrix,
-        (void*)(Globals::ClientBase + Offsets::client_dll::dwViewMatrix),
-        sizeof(Globals::ViewMatrix)
-    );
+    // ViewMatrix is a raw float[16] — C arrays aren't assignable so SafeRead<T>
+    // can't be used here.  Use a guarded memcpy inside SEH instead.
+    {
+        uintptr_t vmSrc = Globals::ClientBase + Offsets::client_dll::dwViewMatrix;
+        if (Globals::ClientBase && Memory::IsValidPtr(vmSrc))
+        {
+            __try
+            {
+                memcpy(&Globals::ViewMatrix,
+                       reinterpret_cast<const void*>(vmSrc),
+                       sizeof(Globals::ViewMatrix));
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) {}  // bad page — keep old matrix
+        }
+    }
 
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
