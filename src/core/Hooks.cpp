@@ -44,7 +44,9 @@ LRESULT __stdcall Hooks::hkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
         }
     }
 
-    return CallWindowProc(oWndProc, hWnd, msg, wParam, lParam);
+    if (oWndProc)
+        return CallWindowProc(oWndProc, hWnd, msg, wParam, lParam);
+    return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT flags)

@@ -10,20 +10,18 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     float inputSampleTime, bool active)
 {
     void* cmd = oCreateMove(thisPtr, sequenceNumber, inputSampleTime, active);
-    if (!cmd) return cmd;
+    if (!cmd || !Memory::IsValidPtr(cmd)) return cmd;
 
     // CUserCmd viewangles at offset 0x10
-    Vector* cmdAngles = reinterpret_cast<Vector*>(
-        reinterpret_cast<uintptr_t>(cmd) + 0x10
-        );
+    uintptr_t cmdAnglesAddr = reinterpret_cast<uintptr_t>(cmd) + 0x10;
 
     // Rage silent aim - modifies cmd only, visual angles unchanged
     if (InputHook::g_hasRageAngles) {
-        *cmdAngles = InputHook::g_rageAngles;
+        Memory::SafeWrite(cmdAnglesAddr, InputHook::g_rageAngles);
         InputHook::g_hasRageAngles = false;
     }
     else if (InputHook::g_hasAimAngles) {
-        *cmdAngles = InputHook::g_aimAngles;
+        Memory::SafeWrite(cmdAnglesAddr, InputHook::g_aimAngles);
         InputHook::g_hasAimAngles = false;
     }
 

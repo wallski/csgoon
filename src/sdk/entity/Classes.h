@@ -2,11 +2,15 @@
 #include <cstdint>
 #include "../memory/Offsets.h"
 #include "../utils/Vector.h"
+#include "../memory/PatternScan.h"
 
 #define SCHEMA(type, name, offset) \
     type name() const { \
-        return *reinterpret_cast<const type*>(reinterpret_cast<uintptr_t>(this) + offset); \
+        type val{}; \
+        Memory::SafeRead(reinterpret_cast<uintptr_t>(this) + offset, val); \
+        return val; \
     }
+
 
 class CGameSceneNode
 {
