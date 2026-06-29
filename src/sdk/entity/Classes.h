@@ -36,10 +36,10 @@ class C_CSPlayerPawn : public C_BaseEntity
 public:
     SCHEMA(Vector, m_vecViewOffset, Offsets::CNetworkViewOffsetVector::m_vecViewOffset);
     SCHEMA(int, m_iShotsFired, Offsets::int32::m_iShotsFired);
-    SCHEMA(Vector, m_aimPunchAngle, Offsets::QAngle::m_aimPunchAngle);
+    SCHEMA(Vector, m_aimPunchAngle, Offsets::QAngle::m_vecCsViewPunchAngle);
     SCHEMA(uintptr_t, m_pObserverServices, Offsets::CPlayer_ObserverServices::m_pObserverServices);
     SCHEMA(int, m_iIDEntIndex, Offsets::CEntityIndex::m_iIDEntIndex);
-    SCHEMA(Vector, m_angEyeAngles, Offsets::QAngle::m_angEyeAngles);
+    SCHEMA(Vector, m_angEyeAngles, Offsets::QAngle::v_angle);
 
 };
 

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "../utils/Vector.h"
 #include "../entity/Classes.h"
+#include "../utils/Globals.h"
 #include "../memory/Offsets.h"
 #include "../memory/Patterns.h"
 #include "../memory/PatternScan.h"
@@ -123,43 +124,53 @@ namespace Utils
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
+    // Returns true if the line segment [from → to] passes through any active
+    // smoke grenade cloud.  Uses the cached Globals::ClientBase so we never
+    // call GetModuleHandleA inside a hot path.
     inline bool IsInSmoke(Vector from, Vector to) {
-        uintptr_t client = Memory::GetModuleBase("client.dll");
+        uintptr_t client = Globals::ClientBase;  // cached once at init — free
+        if (!client)
+            return false;
 
         uintptr_t listPtr = *reinterpret_cast<uintptr_t*>(client + Offsets::client_dll::dwEntityList);
-        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::client_dll::dwGameEntitySystem_highestEntityIndex);
+        if (!listPtr)
+            return false;
 
+        int highestIndex = *reinterpret_cast<int*>(listPtr + Offsets::client_dll::dwGameEntitySystem_highestEntityIndex);
         if (highestIndex <= 0 || highestIndex > 32768)
             return false;
 
-        for (int i = 0; i < highestIndex; i++) {
-            uintptr_t listEntry = *reinterpret_cast<uintptr_t*>(listPtr + (8 * ((i & 0x7FFF) >> 9)) + 16);
+        for (int i = 0; i < highestIndex; ++i) {
+            uintptr_t listEntry = *reinterpret_cast<uintptr_t*>(listPtr + 8 * ((i & 0x7FFF) >> 9) + 16);
             if (!listEntry) continue;
 
             uintptr_t entity = *reinterpret_cast<uintptr_t*>(listEntry + 112 * (i & 0x1FF));
             if (!entity) continue;
 
             bool didSmoke = *reinterpret_cast<bool*>(entity + Offsets::bools::m_bDidSmokeEffect);
-
             if (!didSmoke) continue;
 
             Vector smokePos = *reinterpret_cast<Vector*>(entity + Offsets::Vector::m_vSmokeDetonationPos);
             if (smokePos.IsZero()) continue;
 
-
+            // Point-to-segment distance test.
+            // Project smokePos onto the ray [from→to], clamp to the segment,
+            // then measure how far the grenade centre is from that closest point.
             Vector d = to - from;
             Vector w = smokePos - from;
 
-            float t = Dot(w, d) / Dot(d, d);
+            float dDotD = Dot(d, d);
+            if (dDotD < 1e-6f) continue;   // degenerate segment guard
+
+            float t = Dot(w, d) / dDotD;
             t = std::clamp(t, 0.f, 1.f);
 
             Vector closest = from + d * t;
             float dist = (smokePos - closest).Length();
 
-            if (dist < 150.f)
+            if (dist < 150.f)   // 150 units ≈ smoke grenade radius in CS2
                 return true;
         }
-
 
         return false;
     }

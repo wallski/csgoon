@@ -158,6 +158,8 @@
     <ClInclude Include="src\feature\misc\bhop\Bhop.h" />
     <ClInclude Include="src\feature\misc\configs\Configs.h" />
     <ClInclude Include="src\feature\misc\Misc.h" />
+    <ClInclude Include="src\feature\misc\noflash\NoFlash.h" />
+    <ClInclude Include="src\feature\misc\nosmoke\NoSmoke.h" />
     <ClInclude Include="src\feature\visuals\enemycounter\EnemyCounter.h" />
     <ClInclude Include="src\feature\visuals\esp\Esp.h" />
     <ClInclude Include="src\feature\visuals\Visuals.h" />
@@ -194,6 +196,8 @@
     <ClCompile Include="src\feature\misc\bhop\Bhop.cpp" />
     <ClCompile Include="src\feature\misc\configs\Configs.cpp" />
     <ClCompile Include="src\feature\misc\Misc.cpp" />
+    <ClCompile Include="src\feature\misc\noflash\NoFlash.cpp" />
+    <ClCompile Include="src\feature\misc\nosmoke\NoSmoke.cpp" />
     <ClCompile Include="src\feature\visuals\enemycounter\EnemyCounter.cpp" />
     <ClCompile Include="src\feature\visuals\esp\Esp.cpp" />
     <ClCompile Include="src\feature\visuals\Visuals.cpp" />

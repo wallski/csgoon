@@ -56,6 +56,7 @@ namespace Globals
     inline bool  misc_autostrafe    = false;
     inline bool  misc_radar         = false;
     inline bool  misc_noflash       = false;
+    inline bool  misc_nosmoke       = false;
     inline bool  misc_fovchanger    = false;
     inline float misc_fov           = 90.0f;
     inline bool  g_Unloading        = false;

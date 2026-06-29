@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 #include "Menu.h"
 #include "../../ext/imgui/imgui.h"
@@ -639,6 +639,7 @@ void Menu::Render() {
             section("other");
             feature("radar", &Globals::misc_radar);
             feature("no flash", &Globals::misc_noflash);
+            feature("no smoke", &Globals::misc_nosmoke);
             end_col();
         }
 
