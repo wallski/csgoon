@@ -1,36 +1,47 @@
 #include "InputHook.h"
+#include "../sdk/input/UserCmd.h"
 #include "../sdk/memory/PatternScan.h"
+#include "../feature/combat/ragebot/ragebot.h"
 #include "../../ext/minhook/MinHook.h"
 #include <Windows.h>
 
-using CreateMove_t = void* (__fastcall*)(void*, int, float, bool);
-inline CreateMove_t oCreateMove = nullptr;
+using CreateMoveFn = bool(__fastcall*)(void*, int, CUserCmd*);
+inline CreateMoveFn oCreateMove = nullptr;
 
-void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
-    float inputSampleTime, bool active)
+bool __fastcall hkCreateMove(void* pInput, int nSlot, CUserCmd* cmd)
 {
-    void* cmd = oCreateMove(thisPtr, sequenceNumber, inputSampleTime, active);
-    if (!cmd || !Memory::IsValidPtr(cmd)) return cmd;
+    const bool result = oCreateMove(pInput, nSlot, cmd);
 
-    // CUserCmd viewangles at offset 0x10
-    uintptr_t cmdAnglesAddr = reinterpret_cast<uintptr_t>(cmd) + 0x10;
+    if (!cmd || !Memory::IsValidPtr(reinterpret_cast<uintptr_t>(cmd)))
+        return result;
 
-    // Rage silent aim - modifies cmd only, visual angles unchanged
-    if (InputHook::g_hasRageAngles) {
-        Memory::SafeWrite(cmdAnglesAddr, InputHook::g_rageAngles);
-        InputHook::g_hasRageAngles = false;
-    }
-    else if (InputHook::g_hasAimAngles) {
-        Memory::SafeWrite(cmdAnglesAddr, InputHook::g_aimAngles);
+    RageAimbot::OnCreateMove(cmd);
+
+    if (InputHook::g_hasAimAngles) {
+        InputHook::ApplySilentViewAngle(cmd, InputHook::g_aimAngles);
         InputHook::g_hasAimAngles = false;
     }
 
-    return cmd;
+    return result;
 }
 
-void InputHook::Setup() {
+void InputHook::ApplySilentViewAngle(CUserCmd* cmd, const Vector& angles)
+{
+    if (!cmd)
+        return;
+
+    cmd->SetSilentViewAngle(angles);
+}
+
+void InputHook::Setup()
+{
     uintptr_t createMove = Memory::PatternScan("client.dll",
-        "40 53 48 83 EC ? 48 8B D9 48 8B 89 ? ? ? ? 48 85 C9 74 ?");
+        "48 8B C4 4C 89 40 ? 48 89 48 ? 55 53 56 57 48 8D A8");
+
+    if (!createMove) {
+        createMove = Memory::PatternScan("client.dll",
+            "40 53 48 83 EC ? 48 8B D9 48 8B 89 ? ? ? ? 48 85 C9 74 ?");
+    }
 
     if (!createMove) {
         createMove = Memory::PatternScan("client.dll",
@@ -38,43 +49,31 @@ void InputHook::Setup() {
     }
 
     if (createMove) {
-        MH_CreateHook((void*)createMove, &hkCreateMove, (void**)&oCreateMove);
-        MH_EnableHook((void*)createMove);
+        MH_CreateHook(reinterpret_cast<void*>(createMove),
+            reinterpret_cast<void*>(&hkCreateMove),
+            reinterpret_cast<void**>(&oCreateMove));
+        MH_EnableHook(reinterpret_cast<void*>(createMove));
     }
 }
 
-void InputHook::Destroy() {
+void InputHook::Destroy()
+{
     if (oCreateMove)
-        MH_DisableHook((void*)oCreateMove);
+        MH_DisableHook(reinterpret_cast<void*>(oCreateMove));
 }
 
-void InputHook::SetViewAngles(const Vector& angles) {
+void InputHook::SetViewAngles(const Vector& angles)
+{
     g_aimAngles = angles;
     g_hasAimAngles = true;
 }
 
-bool InputHook::HasViewAngles() {
+bool InputHook::HasViewAngles()
+{
     return g_hasAimAngles;
 }
 
-void InputHook::ClearViewAngles() {
+void InputHook::ClearViewAngles()
+{
     g_hasAimAngles = false;
-}
-
-void InputHook::SetRageAngles(const Vector& angles, bool silent) {
-    g_rageAngles = angles;
-    g_hasRageAngles = true;
-    g_rageSilent = silent;
-}
-
-bool InputHook::HasRageAngles() {
-    return g_hasRageAngles;
-}
-
-Vector InputHook::GetRageAngles() {
-    return g_rageAngles;
-}
-
-bool InputHook::IsSilent() {
-    return g_rageSilent;
 }

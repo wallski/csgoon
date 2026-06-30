@@ -1,26 +1,20 @@
 #pragma once
+
 #include "../sdk/utils/Vector.h"
+
+class CUserCmd;
 
 namespace InputHook {
     void Setup();
     void Destroy();
 
-    // Legit aim - smooth, visible
+    void ApplySilentViewAngle(CUserCmd* cmd, const Vector& angles);
+
+    // Legacy legit path (unused for now)
     void SetViewAngles(const Vector& angles);
     bool HasViewAngles();
     void ClearViewAngles();
 
-    // Rage silent aim - instant, invisible to you
-    void SetRageAngles(const Vector& angles, bool silent);
-    bool HasRageAngles();
-    Vector GetRageAngles();
-    bool IsSilent();
-
-    // Internal
-    inline Vector g_aimAngles = { 0, 0, 0 };
-    inline bool g_hasAimAngles = false;
-
-    inline Vector g_rageAngles = { 0, 0, 0 };
-    inline bool g_hasRageAngles = false;
-    inline bool g_rageSilent = false;
+    inline Vector g_aimAngles{};
+    inline bool   g_hasAimAngles = false;
 }

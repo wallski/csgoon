@@ -164,6 +164,7 @@
     <ClInclude Include="src\feature\visuals\esp\Esp.h" />
     <ClInclude Include="src\feature\visuals\Visuals.h" />
     <ClInclude Include="src\menu\Menu.h" />
+    <ClInclude Include="src\sdk\input\UserCmd.h" />
     <ClInclude Include="src\sdk\entity\Classes.h" />
     <ClInclude Include="src\sdk\entity\EntityManager.h" />
     <ClInclude Include="src\sdk\memory\Offsets.h" />
