@@ -3359,15 +3359,15 @@ namespace Offsets
         constexpr  ptrdiff_t forward = 0x2065CD0;
         constexpr  ptrdiff_t jump = 0x2065FA0;
         constexpr  ptrdiff_t left = 0x2065DF0;
-        constexpr  ptrdiff_t lookatweapon = 0x2356160;
+        constexpr  ptrdiff_t lookatweapon = 0x2355FE0;
         constexpr  ptrdiff_t reload = 0x2065A00;
         constexpr  ptrdiff_t right = 0x2065E80;
-        constexpr  ptrdiff_t showscores = 0x2356040;
+        constexpr  ptrdiff_t showscores = 0x2355EC0;
         constexpr  ptrdiff_t sprint = 0x2065970;
         constexpr  ptrdiff_t turnleft = 0x2065BB0;
         constexpr  ptrdiff_t turnright = 0x2065C40;
         constexpr  ptrdiff_t use = 0x2065F10;
-        constexpr  ptrdiff_t zoom = 0x23560D0;
+        constexpr  ptrdiff_t zoom = 0x2355F50;
     }
 
     // ============================================
@@ -3409,23 +3409,23 @@ namespace Offsets
         // ============================================
         namespace client_dll
     {
-        constexpr  ptrdiff_t dwCSGOInput = 0x2356240;
-        constexpr  ptrdiff_t dwEntityList = 0x24E76A0;
-        constexpr  ptrdiff_t dwGameEntitySystem = 0x24E76A0;
+        constexpr  ptrdiff_t dwCSGOInput = 0x23560C0;
+        constexpr  ptrdiff_t dwEntityList = 0x24E7680;
+        constexpr  ptrdiff_t dwGameEntitySystem = 0x24E7680;
         constexpr  ptrdiff_t dwGameEntitySystem_highestEntityIndex = 0x2090;
-        constexpr  ptrdiff_t dwGameRules = 0x2341158;
+        constexpr  ptrdiff_t dwGameRules = 0x2340FE8;
         constexpr  ptrdiff_t dwGlobalVars = 0x20616D0;
-        constexpr  ptrdiff_t dwGlowManager = 0x233DF50;
-        constexpr  ptrdiff_t dwLocalPlayerController = 0x2320720;
-        constexpr  ptrdiff_t dwLocalPlayerPawn = 0x2341698;
-        constexpr  ptrdiff_t dwPlantedC4 = 0x234FF98;
-        constexpr  ptrdiff_t dwPrediction = 0x23415A0;
-        constexpr  ptrdiff_t dwSensitivity = 0x233EA68;
+        constexpr  ptrdiff_t dwGlowManager = 0x233DDE0;
+        constexpr  ptrdiff_t dwLocalPlayerController = 0x2320570;
+        constexpr  ptrdiff_t dwLocalPlayerPawn = 0x2341528;
+        constexpr  ptrdiff_t dwPlantedC4 = 0x234FE28;
+        constexpr  ptrdiff_t dwPrediction = 0x2341430;
+        constexpr  ptrdiff_t dwSensitivity = 0x233E8F8;
         constexpr  ptrdiff_t dwSensitivity_sensitivity = 0x58;
-        constexpr  ptrdiff_t dwViewAngles = 0x23568C8;
-        constexpr  ptrdiff_t dwViewMatrix = 0x2346B30;
-        constexpr  ptrdiff_t dwViewRender = 0x2346EE0;
-        constexpr  ptrdiff_t dwWeaponC4 = 0x22BED20;
+        constexpr  ptrdiff_t dwViewAngles = 0x2356748;
+        constexpr  ptrdiff_t dwViewMatrix = 0x23469C0;
+        constexpr  ptrdiff_t dwViewRender = 0x2346D70;
+        constexpr  ptrdiff_t dwWeaponC4 = 0x22BED18;
     }
 
     // ============================================

@@ -1,6 +1,7 @@
 #include "InputHook.h"
 #include "../sdk/memory/PatternScan.h"
 #include "../../ext/minhook/MinHook.h"
+#include "../sdk/utils/Globals.h"
 #include <Windows.h>
 
 using CreateMove_t = void* (__fastcall*)(void*, int, float, bool);
