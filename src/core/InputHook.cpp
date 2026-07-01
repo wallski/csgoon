@@ -6,6 +6,7 @@
 
 using CreateMove_t = void* (__fastcall*)(void*, int, float, bool);
 inline CreateMove_t oCreateMove = nullptr;
+static uintptr_t g_CreateMoveAddr = 0;
 
 void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     float inputSampleTime, bool active)
@@ -59,15 +60,22 @@ void InputHook::Setup() {
             "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B 01 48 8B F9 FF 50 ?");
     }
 
-    if (createMove) {
-        MH_CreateHook((void*)createMove, &hkCreateMove, (void**)&oCreateMove);
-        MH_EnableHook((void*)createMove);
-    }
+    if (!createMove) return;
+
+    g_CreateMoveAddr = createMove;
+
+    if (MH_CreateHook((void*)createMove, &hkCreateMove, (void**)&oCreateMove) != MH_OK)
+        return;
+
+    MH_EnableHook((void*)createMove);
 }
 
 void InputHook::Destroy() {
-    if (oCreateMove)
-        MH_DisableHook((void*)oCreateMove);
+    if (!g_CreateMoveAddr) return;
+    MH_DisableHook((void*)g_CreateMoveAddr);
+    MH_RemoveHook((void*)g_CreateMoveAddr);
+    g_CreateMoveAddr = 0;
+    oCreateMove = nullptr;
 }
 
 void InputHook::SetViewAngles(const Vector& angles) {

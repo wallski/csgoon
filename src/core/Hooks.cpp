@@ -63,9 +63,14 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
         g_Window = sd.OutputWindow;
 
         ID3D11Texture2D* backBuffer = nullptr;
-        swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
-        g_Device->CreateRenderTargetView(backBuffer, nullptr, &g_RTV);
+        HRESULT hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+        if (FAILED(hr) || !backBuffer)
+            return oPresent(swapChain, sync, flags);
+
+        hr = g_Device->CreateRenderTargetView(backBuffer, nullptr, &g_RTV);
         backBuffer->Release();
+        if (FAILED(hr) || !g_RTV)
+            return oPresent(swapChain, sync, flags);
 
         oWndProc = (WNDPROC)SetWindowLongPtr(
             g_Window, GWLP_WNDPROC, (LONG_PTR)hkWndProc
@@ -137,8 +142,11 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
     Misc::Run();
 
     ImGui::Render();
-    g_Context->OMSetRenderTargets(1, &g_RTV, nullptr);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    if (g_Context && g_RTV)
+    {
+        g_Context->OMSetRenderTargets(1, &g_RTV, nullptr);
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    }
 
     HRESULT hr = oPresent(swapChain, sync, flags);
 

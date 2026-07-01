@@ -31,6 +31,8 @@ static std::vector<int> PatternToBytes(const char* pattern)
 
 uintptr_t Memory::PatternScan(const char* module, const char* signature)
 {
+    if (!signature || !*signature) return 0;
+
     HMODULE mod = GetModuleHandleA(module);
     if (!mod) return 0;
 
@@ -45,7 +47,9 @@ uintptr_t Memory::PatternScan(const char* module, const char* signature)
     auto data = pattern.data();
     auto len = pattern.size();
 
-    for (size_t i = 0; i < size - len; ++i)
+    if (len == 0 || len > size) return 0;
+
+    for (size_t i = 0; i <= size - len; ++i)
     {
         bool found = true;
         for (size_t j = 0; j < len; ++j)
