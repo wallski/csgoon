@@ -93,11 +93,14 @@ void Configs::Save(const std::string& name) {
     file << "misc_autostrafe=" << Globals::misc_autostrafe << "\n";
     file << "misc_radar=" << Globals::misc_radar << "\n";
     file << "misc_noflash=" << Globals::misc_noflash << "\n";
+    file << "misc_nosmoke=" << Globals::misc_nosmoke << "\n";
+    file << "misc_thirdperson=" << Globals::misc_thirdperson << "\n";
     file << "misc_fovchanger=" << Globals::misc_fovchanger << "\n";
     file << "misc_fov=" << Globals::misc_fov << "\n";
 
     // ragebot
     file << "rage_enabled=" << Globals::rage_enabled << "\n";
+    file << "rage_lock=" << Globals::rage_lock << "\n";
     file << "rage_silent=" << Globals::rage_silent << "\n";
     file << "rage_autoshoot=" << Globals::rage_autoshoot << "\n";
     file << "rage_multipoint=" << Globals::rage_multipoint << "\n";
@@ -217,11 +220,14 @@ void Configs::Load(const std::string& name) {
             else if (key == "misc_autostrafe")       Globals::misc_autostrafe = val == "1";
             else if (key == "misc_radar")            Globals::misc_radar = val == "1";
             else if (key == "misc_noflash")          Globals::misc_noflash = val == "1";
+            else if (key == "misc_nosmoke")          Globals::misc_nosmoke = val == "1";
+            else if (key == "misc_thirdperson")      Globals::misc_thirdperson = val == "1";
             else if (key == "misc_fovchanger")       Globals::misc_fovchanger = val == "1";
             else if (key == "misc_fov")              Globals::misc_fov = std::stof(val);
 
             // ragebot
             else if (key == "rage_enabled")          Globals::rage_enabled = val == "1";
+            else if (key == "rage_lock")             Globals::rage_lock = val == "1";
             else if (key == "rage_silent")           Globals::rage_silent = val == "1";
             else if (key == "rage_autoshoot")        Globals::rage_autoshoot = val == "1";
             else if (key == "rage_multipoint")       Globals::rage_multipoint = val == "1";

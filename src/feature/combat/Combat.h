@@ -32,11 +32,21 @@ namespace Combat
             if (!ent.pawn || !ent.pawn->IsAlive())
                 continue;
 
-            Vector headPos = Utils::GetBonePos(ent.pawn, BoneID::Head);
-            if (headPos.IsZero())
+            Vector targetPos{};
+            
+            // Prioritize head if enabled
+            if (Globals::aim_head) {
+                targetPos = Utils::GetBonePos(ent.pawn, BoneID::Head);
+            } 
+            // Fallback to body if head not enabled or if we want to add multi-bone logic later
+            if (targetPos.IsZero() && Globals::aim_body) {
+                targetPos = Utils::GetBonePos(ent.pawn, BoneID::Spine);
+            }
+            
+            if (targetPos.IsZero())
                 continue;
 
-            Vector angleToTarget = Utils::CalcAngle(eyePos, headPos);
+            Vector angleToTarget = Utils::CalcAngle(eyePos, targetPos);
             Utils::NormalizeAngles(angleToTarget);
 
             float fov = Utils::GetFoV(currentAngle, angleToTarget);

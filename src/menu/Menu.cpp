@@ -371,6 +371,11 @@ void Menu::Render() {
             feature("team check", &Globals::aim_team_check);
             feature("auto shoot", &Globals::rage_autoshoot);
             feature("multipoint", &Globals::rage_multipoint);
+            
+            ImGui::Spacing();
+            section("hitbox");
+            feature("head", &Globals::aim_head);
+            feature("body", &Globals::aim_body);
 
             // Ragebot keybind picker only when rage lock is enabled and silent aim is off
             if (Globals::rage_lock && !Globals::rage_silent) {
@@ -448,8 +453,14 @@ void Menu::Render() {
             feature("aim lock", &Globals::legit_lock);
             feature("rcs", &Globals::legit_rcs);
             feature("team check", &Globals::aim_team_check);
+            
             ImGui::Spacing();
-            ImGui::TextColored(ImColor(Style::text_muted), "smooth");
+            section("hitbox");
+            feature("head", &Globals::aim_head);
+            feature("body", &Globals::aim_body);
+
+            ImGui::Spacing();
+            section("settings");
             ImGui::Spacing();
             slider_f("##sm", &Globals::legit_smooth, 1, 20, cw * 0.46f);
             ImGui::Spacing();
@@ -463,6 +474,7 @@ void Menu::Render() {
             feature("enable", &Globals::trigger_enabled);
 
             if (Globals::trigger_enabled) {
+                feature("smoke check", &Globals::trigger_smoke_check);
                 ImGui::Spacing();
                 ImGui::TextColored(ImColor(Style::text_muted), "delay (ms)");
                 ImGui::Spacing();
@@ -640,6 +652,14 @@ void Menu::Render() {
             feature("radar", &Globals::misc_radar);
             feature("no flash", &Globals::misc_noflash);
             feature("no smoke", &Globals::misc_nosmoke);
+            feature("third person", &Globals::misc_thirdperson);
+            
+            ImGui::Spacing();
+            section("fov changer");
+            feature("enable fov", &Globals::misc_fovchanger);
+            if (Globals::misc_fovchanger) {
+                slider_f("##mfov", &Globals::misc_fov, 60.0f, 150.0f, cw * 0.46f);
+            }
             end_col();
         }
 

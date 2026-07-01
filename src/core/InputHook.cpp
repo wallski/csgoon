@@ -15,14 +15,35 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     // CUserCmd viewangles at offset 0x10
     uintptr_t cmdAnglesAddr = reinterpret_cast<uintptr_t>(cmd) + 0x10;
 
+    // Spin with yaw and pitch (Anti-Aim)
+    // Applied when ragebot is enabled, no active aim action, and we have a valid cmd
+    static float spinYaw = 0.0f;
+    bool didAim = false;
+
     // Rage silent aim - modifies cmd only, visual angles unchanged
     if (InputHook::g_hasRageAngles) {
         Memory::SafeWrite(cmdAnglesAddr, InputHook::g_rageAngles);
         InputHook::g_hasRageAngles = false;
+        didAim = true;
     }
     else if (InputHook::g_hasAimAngles) {
         Memory::SafeWrite(cmdAnglesAddr, InputHook::g_aimAngles);
         InputHook::g_hasAimAngles = false;
+        didAim = true;
+    }
+
+    if (!didAim && Globals::rage_enabled && Globals::rage_silent) {
+        // Apply spin anti-aim if not currently shooting/aiming
+        // This is a simple spinbot example: max pitch down, fast spinning yaw
+        Vector aaAngles;
+        Memory::SafeRead(cmdAnglesAddr, aaAngles);
+        
+        aaAngles.x = 89.0f; // Pitch down
+        spinYaw += 25.0f;   // Spin speed
+        if (spinYaw > 180.0f) spinYaw -= 360.0f;
+        aaAngles.y = spinYaw;
+        
+        Memory::SafeWrite(cmdAnglesAddr, aaAngles);
     }
 
     return cmd;

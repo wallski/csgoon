@@ -25,6 +25,28 @@ void Aimbot::Run() {
 
     // Respect configured keybind (default LMB)
     bool keyDown = (GetAsyncKeyState(Globals::legit_key) & 0x8000) != 0;
+    
+    // Standalone RCS
+    static Vector oldPunch{};
+    if (Globals::legit_rcs && local->m_iShotsFired() > 1) {
+        Vector punch = local->m_aimPunchAngle() * 2.0f;
+        if (!Globals::legit_lock || !keyDown) {
+            Vector currentAngle{};
+            uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
+            if (Memory::SafeRead(localPtr + Offsets::QAngle::v_angle, currentAngle)) {
+                Vector finalAngle = currentAngle + oldPunch - punch;
+                Utils::NormalizeAngles(finalAngle);
+                
+                Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, finalAngle);
+                if (Globals::ClientBase)
+                    Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, finalAngle);
+            }
+        }
+        oldPunch = punch;
+    } else {
+        oldPunch = {};
+    }
+
     if (!keyDown)
         return;
 
@@ -39,12 +61,12 @@ void Aimbot::Run() {
     if (!target)
         return;
 
-    if (Globals::legit_rcs && local->m_iShotsFired() > 1) {
-        targetAngle = targetAngle - (local->m_aimPunchAngle() * 2.0f);
-        Utils::NormalizeAngles(targetAngle);
-    }
-
     if (Globals::legit_lock) {
+        if (Globals::legit_rcs && local->m_iShotsFired() > 1) {
+            targetAngle = targetAngle - (local->m_aimPunchAngle() * 2.0f);
+            Utils::NormalizeAngles(targetAngle);
+        }
+
         Vector currentAngle{};
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
         if (!Memory::SafeRead(localPtr + Offsets::QAngle::v_angle, currentAngle))

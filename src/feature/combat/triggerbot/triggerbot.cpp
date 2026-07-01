@@ -69,7 +69,7 @@ void Triggerbot::Run() {
     int targetTeam = 0, localTeam = 0;
     Memory::SafeRead(reinterpret_cast<uintptr_t>(target) + Offsets::uint8::m_iTeamNum, targetTeam);
     Memory::SafeRead(reinterpret_cast<uintptr_t>(local)  + Offsets::uint8::m_iTeamNum, localTeam);
-    if (targetTeam == localTeam)
+    if (Globals::aim_team_check && targetTeam == localTeam)
     {
         wasAiming = false;
         return;

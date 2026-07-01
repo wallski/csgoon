@@ -25,7 +25,7 @@ void RageAimbot::Run() {
     C_CSPlayerPawn* target = Combat::FindTarget(
         local, eyePos, targetAngle,
         Globals::rage_fov,
-        true  // rage always enemy-only
+        Globals::aim_team_check
     );
     if (!target)
         return;
@@ -46,5 +46,15 @@ void RageAimbot::Run() {
         Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, targetAngle);
         if (Globals::ClientBase)
             Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, targetAngle);
+    }
+
+    if (Globals::rage_autoshoot) {
+        static auto lastShot = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - lastShot).count() >= 30) {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            lastShot = now;
+        }
     }
 }
