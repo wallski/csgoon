@@ -102,9 +102,10 @@ void EntityManager::Update()
         Memory::SafeRead(pawnPtr + Offsets::uint8::m_iTeamNum, pawnTeam);
 
         Entity_t ent{};
-        ent.controller = controller;
-        ent.pawn       = pawn;
-        ent.index      = i;
+        ent.controller    = controller;
+        ent.pawn          = pawn;
+        ent.index         = i;
+        ent.pawnEntityIdx = static_cast<int>(pawnHandle & 0x7FFF); // entity list index for wall checks
 
         if (currentLocalPawn)
         {

@@ -16,11 +16,19 @@ namespace InputHook {
     Vector GetRageAngles();
     bool IsSilent();
 
-    // Internal
-    inline Vector g_aimAngles = { 0, 0, 0 };
-    inline bool g_hasAimAngles = false;
+    // Rage lock - instant visible snap, applied inside CreateMove for tick-sync
+    // This eliminates the render-thread lag that causes sluggish tracking.
+    void SetLockAngles(const Vector& angles);
+    bool HasLockAngles();
 
-    inline Vector g_rageAngles = { 0, 0, 0 };
-    inline bool g_hasRageAngles = false;
-    inline bool g_rageSilent = false;
-}
+    // Internal
+    inline Vector g_aimAngles      = { 0, 0, 0 };
+    inline bool   g_hasAimAngles   = false;
+
+    inline Vector g_rageAngles     = { 0, 0, 0 };
+    inline bool   g_hasRageAngles  = false;
+    inline bool   g_rageSilent     = false;
+
+    inline Vector g_lockAngles     = { 0, 0, 0 };
+    inline bool   g_hasLockAngles  = false;
+}

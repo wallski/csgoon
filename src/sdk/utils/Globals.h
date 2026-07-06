@@ -54,12 +54,10 @@ namespace Globals
     // ── Misc ─────────────────────────────────────────────────────────────
     inline bool  misc_bhop          = false;
     inline bool  misc_autostrafe    = false;
-    inline bool  misc_radar         = false;
     inline bool  misc_noflash       = false;
     inline bool  misc_nosmoke       = false;
     inline bool  misc_thirdperson   = false;
-    inline bool  misc_fovchanger    = false;
-    inline float misc_fov           = 90.0f;
+    inline bool  misc_fov_circle    = false;
     inline bool  g_Unloading        = false;
 
     // ── Engine ─────────────────────────────────────────────────────────────
@@ -75,6 +73,7 @@ namespace Globals
     inline bool  rage_lock          = false;
     inline bool  rage_silent        = false;
     inline bool  rage_autoshoot     = false;
+    inline bool  rage_auto_accurate = false;
     inline bool  rage_multipoint    = false;
     inline int   rage_key           = 0;
     inline float rage_hitchance     = 80.0f;

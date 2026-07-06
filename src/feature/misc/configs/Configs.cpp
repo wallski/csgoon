@@ -91,18 +91,17 @@ void Configs::Save(const std::string& name) {
     // misc
     file << "misc_bhop=" << Globals::misc_bhop << "\n";
     file << "misc_autostrafe=" << Globals::misc_autostrafe << "\n";
-    file << "misc_radar=" << Globals::misc_radar << "\n";
     file << "misc_noflash=" << Globals::misc_noflash << "\n";
     file << "misc_nosmoke=" << Globals::misc_nosmoke << "\n";
     file << "misc_thirdperson=" << Globals::misc_thirdperson << "\n";
-    file << "misc_fovchanger=" << Globals::misc_fovchanger << "\n";
-    file << "misc_fov=" << Globals::misc_fov << "\n";
+    file << "misc_fov_circle=" << Globals::misc_fov_circle << "\n";
 
     // ragebot
     file << "rage_enabled=" << Globals::rage_enabled << "\n";
     file << "rage_lock=" << Globals::rage_lock << "\n";
     file << "rage_silent=" << Globals::rage_silent << "\n";
     file << "rage_autoshoot=" << Globals::rage_autoshoot << "\n";
+    file << "rage_auto_accurate=" << Globals::rage_auto_accurate << "\n";
     file << "rage_multipoint=" << Globals::rage_multipoint << "\n";
     file << "rage_hitchance=" << Globals::rage_hitchance << "\n";
     file << "rage_mindmg=" << Globals::rage_mindmg << "\n";
@@ -218,18 +217,17 @@ void Configs::Load(const std::string& name) {
             // misc
             else if (key == "misc_bhop")             Globals::misc_bhop = val == "1";
             else if (key == "misc_autostrafe")       Globals::misc_autostrafe = val == "1";
-            else if (key == "misc_radar")            Globals::misc_radar = val == "1";
             else if (key == "misc_noflash")          Globals::misc_noflash = val == "1";
             else if (key == "misc_nosmoke")          Globals::misc_nosmoke = val == "1";
             else if (key == "misc_thirdperson")      Globals::misc_thirdperson = val == "1";
-            else if (key == "misc_fovchanger")       Globals::misc_fovchanger = val == "1";
-            else if (key == "misc_fov")              Globals::misc_fov = std::stof(val);
+            else if (key == "misc_fov_circle")       Globals::misc_fov_circle = val == "1";
 
             // ragebot
             else if (key == "rage_enabled")          Globals::rage_enabled = val == "1";
             else if (key == "rage_lock")             Globals::rage_lock = val == "1";
             else if (key == "rage_silent")           Globals::rage_silent = val == "1";
             else if (key == "rage_autoshoot")        Globals::rage_autoshoot = val == "1";
+            else if (key == "rage_auto_accurate")    Globals::rage_auto_accurate = val == "1";
             else if (key == "rage_multipoint")       Globals::rage_multipoint = val == "1";
             else if (key == "rage_hitchance")        Globals::rage_hitchance = std::stof(val);
             else if (key == "rage_mindmg")           Globals::rage_mindmg = std::stof(val);
@@ -336,15 +334,16 @@ void Configs::Reset() {
     // Misc
     Globals::misc_bhop = false;
     Globals::misc_autostrafe = false;
-    Globals::misc_radar = false;
     Globals::misc_noflash = false;
-    Globals::misc_fovchanger = false;
-    Globals::misc_fov = 90.0f;
+    Globals::misc_nosmoke = false;
+    Globals::misc_thirdperson = false;
+    Globals::misc_fov_circle = false;
 
     // Ragebot
     Globals::rage_enabled = false;
     Globals::rage_silent = false;
     Globals::rage_autoshoot = false;
+    Globals::rage_auto_accurate = false;
     Globals::rage_multipoint = false;
     Globals::rage_hitchance = 80.0f;
     Globals::rage_mindmg = 20.0f;

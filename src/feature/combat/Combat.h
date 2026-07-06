@@ -33,16 +33,20 @@ namespace Combat
                 continue;
 
             Vector targetPos{};
-            
-            // Prioritize head if enabled
+
+            // Head target: enemy origin + view offset = their exact eye/head position.
+            // Same math as the local player's eye pos. Correct for any pose or crouch.
             if (Globals::aim_head) {
-                targetPos = Utils::GetBonePos(ent.pawn, BoneID::Head);
-            } 
-            // Fallback to body if head not enabled or if we want to add multi-bone logic later
-            if (targetPos.IsZero() && Globals::aim_body) {
-                targetPos = Utils::GetBonePos(ent.pawn, BoneID::Spine);
+                Vector origin  = ent.pawn->m_vOldOrigin();
+                Vector viewOff = ent.pawn->m_vecViewOffset();
+                if (!origin.IsZero())
+                    targetPos = origin + viewOff;
             }
-            
+
+            // Body fallback: spine bone
+            if (targetPos.IsZero() && Globals::aim_body)
+                targetPos = Utils::GetBonePos(ent.pawn, BoneID::Spine);
+
             if (targetPos.IsZero())
                 continue;
 

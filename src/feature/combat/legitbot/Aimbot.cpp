@@ -67,26 +67,10 @@ void Aimbot::Run() {
             Utils::NormalizeAngles(targetAngle);
         }
 
-        Vector currentAngle{};
+        // Instant snap — legit lock should be as fast as possible
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
-        if (!Memory::SafeRead(localPtr + Offsets::QAngle::v_angle, currentAngle))
-            return;
-
-        Vector delta = targetAngle - currentAngle;
-        Utils::NormalizeAngles(delta);
-
-        const float MAX_DEG = 8.0f;
-        delta.x = Clamp(delta.x, -MAX_DEG, MAX_DEG);
-        delta.y = Clamp(delta.y, -MAX_DEG, MAX_DEG);
-
-        float smooth = Clamp(Globals::legit_smooth, 1.0f, 20.0f);
-        float factor = 1.0f / smooth;
-
-        Vector finalAngle = currentAngle + delta * factor;
-        Utils::NormalizeAngles(finalAngle);
-
-        Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, finalAngle);
+        Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, targetAngle);
         if (Globals::ClientBase)
-            Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, finalAngle);
+            Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, targetAngle);
     }
 }

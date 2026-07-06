@@ -18,7 +18,7 @@ void Misc::Run() {
 	NoFlash::Run();
 	NoSmoke::Run();
 
-    // Thirdperson & Radar
+    // Thirdperson
     C_CSPlayerPawn* local = EntityManager::Get().GetLocalPawn();
     if (local && local->IsAlive()) {
         uintptr_t pObserverServices = local->m_pObserverServices();
@@ -34,16 +34,6 @@ void Misc::Run() {
                     Memory::SafeWrite(pObserverServices + Offsets::uint8::m_iObserverMode, (uint8_t)0); // 0 = None / Firstperson
                 }
             }
-        }
-    }
-
-    if (Globals::misc_radar) {
-        for (const auto& ent : EntityManager::Get().GetEntities()) {
-            if (!ent.pawn || !ent.isEnemy)
-                continue;
-
-            uintptr_t entitySpottedState = reinterpret_cast<uintptr_t>(ent.pawn) + 0x1CC8; // m_entitySpottedState
-            Memory::SafeWrite(entitySpottedState + 0x8, true); // m_bSpotted
         }
     }
 }

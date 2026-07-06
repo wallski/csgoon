@@ -2,6 +2,7 @@
 #include "../sdk/memory/PatternScan.h"
 #include "../../ext/minhook/MinHook.h"
 #include "../sdk/utils/Globals.h"
+#include "../sdk/memory/Offsets.h"
 #include <Windows.h>
 
 using CreateMove_t = void* (__fastcall*)(void*, int, float, bool);
@@ -22,10 +23,21 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     static float spinYaw = 0.0f;
     bool didAim = false;
 
-    // Rage silent aim - modifies cmd only, visual angles unchanged
+    // Rage silent aim — writes to cmd only, crosshair stays in place visually
     if (InputHook::g_hasRageAngles) {
         Memory::SafeWrite(cmdAnglesAddr, InputHook::g_rageAngles);
         InputHook::g_hasRageAngles = false;
+        didAim = true;
+    }
+    // Rage lock — tick-synchronized: write to cmd AND to dwViewAngles/v_angle
+    // so the snap is both visually instant AND processed in this exact game tick.
+    // This eliminates the 1-tick lag that caused sluggish target tracking.
+    else if (InputHook::g_hasLockAngles) {
+        Memory::SafeWrite(cmdAnglesAddr, InputHook::g_lockAngles);
+        // Visual snap — update rendered angle in the same tick
+        if (Globals::ClientBase)
+            Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, InputHook::g_lockAngles);
+        InputHook::g_hasLockAngles = false;
         didAim = true;
     }
     else if (InputHook::g_hasAimAngles) {
@@ -107,4 +119,13 @@ Vector InputHook::GetRageAngles() {
 
 bool InputHook::IsSilent() {
     return g_rageSilent;
+}
+
+void InputHook::SetLockAngles(const Vector& angles) {
+    g_lockAngles    = angles;
+    g_hasLockAngles = true;
+}
+
+bool InputHook::HasLockAngles() {
+    return g_hasLockAngles;
 }

@@ -370,6 +370,7 @@ void Menu::Render() {
             feature("silent aim", &Globals::rage_silent);
             feature("team check", &Globals::aim_team_check);
             feature("auto shoot", &Globals::rage_autoshoot);
+            feature("auto accurate", &Globals::rage_auto_accurate);
             feature("multipoint", &Globals::rage_multipoint);
             
             ImGui::Spacing();
@@ -649,17 +650,10 @@ void Menu::Render() {
         }
         if (begin_col("misc_r", cw, true)) {
             section("other");
-            feature("radar", &Globals::misc_radar);
             feature("no flash", &Globals::misc_noflash);
             feature("no smoke", &Globals::misc_nosmoke);
             feature("third person", &Globals::misc_thirdperson);
-            
-            ImGui::Spacing();
-            section("fov changer");
-            feature("enable fov", &Globals::misc_fovchanger);
-            if (Globals::misc_fovchanger) {
-                slider_f("##mfov", &Globals::misc_fov, 60.0f, 150.0f, cw * 0.46f);
-            }
+            feature("fov circle", &Globals::misc_fov_circle);
             end_col();
         }
 
