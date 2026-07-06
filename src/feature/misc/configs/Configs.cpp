@@ -95,6 +95,10 @@ void Configs::Save(const std::string& name) {
     file << "misc_nosmoke=" << Globals::misc_nosmoke << "\n";
     file << "misc_thirdperson=" << Globals::misc_thirdperson << "\n";
     file << "misc_fov_circle=" << Globals::misc_fov_circle << "\n";
+    file << "misc_fov_circle_color_r=" << Globals::misc_fov_circle_color[0] << "\n";
+    file << "misc_fov_circle_color_g=" << Globals::misc_fov_circle_color[1] << "\n";
+    file << "misc_fov_circle_color_b=" << Globals::misc_fov_circle_color[2] << "\n";
+    file << "misc_fov_circle_color_a=" << Globals::misc_fov_circle_color[3] << "\n";
 
     // ragebot
     file << "rage_enabled=" << Globals::rage_enabled << "\n";
@@ -221,6 +225,10 @@ void Configs::Load(const std::string& name) {
             else if (key == "misc_nosmoke")          Globals::misc_nosmoke = val == "1";
             else if (key == "misc_thirdperson")      Globals::misc_thirdperson = val == "1";
             else if (key == "misc_fov_circle")       Globals::misc_fov_circle = val == "1";
+            else if (key == "misc_fov_circle_color_r") Globals::misc_fov_circle_color[0] = std::stof(val);
+            else if (key == "misc_fov_circle_color_g") Globals::misc_fov_circle_color[1] = std::stof(val);
+            else if (key == "misc_fov_circle_color_b") Globals::misc_fov_circle_color[2] = std::stof(val);
+            else if (key == "misc_fov_circle_color_a") Globals::misc_fov_circle_color[3] = std::stof(val);
 
             // ragebot
             else if (key == "rage_enabled")          Globals::rage_enabled = val == "1";
@@ -338,6 +346,10 @@ void Configs::Reset() {
     Globals::misc_nosmoke = false;
     Globals::misc_thirdperson = false;
     Globals::misc_fov_circle = false;
+    Globals::misc_fov_circle_color[0] = 1.f;
+    Globals::misc_fov_circle_color[1] = 1.f;
+    Globals::misc_fov_circle_color[2] = 1.f;
+    Globals::misc_fov_circle_color[3] = 0.5f;
 
     // Ragebot
     Globals::rage_enabled = false;

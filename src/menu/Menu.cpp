@@ -653,7 +653,7 @@ void Menu::Render() {
             feature("no flash", &Globals::misc_noflash);
             feature("no smoke", &Globals::misc_nosmoke);
             feature("third person", &Globals::misc_thirdperson);
-            feature("fov circle", &Globals::misc_fov_circle);
+            feature("fov circle", &Globals::misc_fov_circle, Globals::misc_fov_circle_color);
             end_col();
         }
 

@@ -58,6 +58,7 @@ namespace Globals
     inline bool  misc_nosmoke       = false;
     inline bool  misc_thirdperson   = false;
     inline bool  misc_fov_circle    = false;
+    inline float misc_fov_circle_color[4] = { 1.f, 1.f, 1.f, 0.5f };
     inline bool  g_Unloading        = false;
 
     // ── Engine ─────────────────────────────────────────────────────────────

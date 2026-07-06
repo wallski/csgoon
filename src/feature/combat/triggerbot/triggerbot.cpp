@@ -7,8 +7,29 @@
 #include <chrono>
 
 
+static bool IsActiveWeaponSniper(C_CSPlayerPawn* local) {
+    if (!local) return false;
+    uintptr_t weaponServices = 0;
+    if (!Memory::SafeRead(reinterpret_cast<uintptr_t>(local) + Offsets::CPlayer_WeaponServices::m_pWeaponServices, weaponServices) || !weaponServices)
+        return false;
+
+    uint32_t activeWeaponHandle = 0;
+    if (!Memory::SafeRead(weaponServices + 0x60, activeWeaponHandle) || !activeWeaponHandle) // m_hActiveWeapon
+        return false;
+
+    C_CSPlayerPawn* weaponEntity = EntityManager::Get().GetPawnFromHandle(activeWeaponHandle);
+    if (!weaponEntity)
+        return false;
+
+    uint16_t itemDef = 0;
+    if (!Memory::SafeRead(reinterpret_cast<uintptr_t>(weaponEntity) + 0x1BA, itemDef)) // m_iItemDefinitionIndex
+        return false;
+
+    // 9 = AWP, 11 = G3SG1, 38 = SCAR-20, 40 = SSG 08
+    return (itemDef == 9 || itemDef == 11 || itemDef == 38 || itemDef == 40);
+}
+
 void Triggerbot::Run() {
-   
     if (!Globals::trigger_enabled)
         return;
 
@@ -97,6 +118,14 @@ void Triggerbot::Run() {
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastShot).count();
 
     if (elapsed >= Globals::trigger_delay) {
+        // Recoil check — for non-snipers (rifles, pistols, SMGs), only fire if recoil has settled
+        if (!IsActiveWeaponSniper(local)) {
+            Vector punch = local->m_aimPunchAngle();
+            float punchLen = std::sqrt(punch.x * punch.x + punch.y * punch.y);
+            if (punchLen > 0.2f)
+                return;
+        }
+
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         lastShot = now;
