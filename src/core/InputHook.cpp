@@ -15,26 +15,22 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     void* cmd = oCreateMove(thisPtr, sequenceNumber, inputSampleTime, active);
     if (!cmd || !Memory::IsValidPtr(cmd)) return cmd;
 
-    // CUserCmd viewangles at offset 0x10
+
     uintptr_t cmdAnglesAddr = reinterpret_cast<uintptr_t>(cmd) + 0x10;
 
-    // Spin with yaw and pitch (Anti-Aim)
-    // Applied when ragebot is enabled, no active aim action, and we have a valid cmd
+
     static float spinYaw = 0.0f;
     bool didAim = false;
 
-    // Rage silent aim — writes to cmd only, crosshair stays in place visually
+
     if (InputHook::g_hasRageAngles) {
         Memory::SafeWrite(cmdAnglesAddr, InputHook::g_rageAngles);
         InputHook::g_hasRageAngles = false;
         didAim = true;
     }
-    // Rage lock — tick-synchronized: write to cmd AND to dwViewAngles/v_angle
-    // so the snap is both visually instant AND processed in this exact game tick.
-    // This eliminates the 1-tick lag that caused sluggish target tracking.
+
     else if (InputHook::g_hasLockAngles) {
         Memory::SafeWrite(cmdAnglesAddr, InputHook::g_lockAngles);
-        // Visual snap — update rendered angle in the same tick
         if (Globals::ClientBase)
             Memory::SafeWrite(Globals::ClientBase + Offsets::client_dll::dwViewAngles, InputHook::g_lockAngles);
         InputHook::g_hasLockAngles = false;
@@ -47,13 +43,12 @@ void* __fastcall hkCreateMove(void* thisPtr, int sequenceNumber,
     }
 
     if (!didAim && Globals::rage_enabled && Globals::rage_silent) {
-        // Apply spin anti-aim if not currently shooting/aiming
-        // This is a simple spinbot example: max pitch down, fast spinning yaw
+
         Vector aaAngles;
         Memory::SafeRead(cmdAnglesAddr, aaAngles);
         
-        aaAngles.x = 89.0f; // Pitch down
-        spinYaw += 25.0f;   // Spin speed
+        aaAngles.x = 89.0f;
+        spinYaw += 25.0f;
         if (spinYaw > 180.0f) spinYaw -= 360.0f;
         aaAngles.y = spinYaw;
         

@@ -124,9 +124,7 @@ namespace Utils
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
-    // Returns true if the line segment [from → to] passes through any active
-    // smoke grenade cloud.  Every pointer dereference goes through SafeRead so
-    // a bad entity pointer during round transitions is handled gracefully.
+
     inline bool IsInSmoke(Vector from, Vector to) {
         uintptr_t client = Globals::ClientBase;
         if (!client)
@@ -184,8 +182,7 @@ namespace Utils
         return false;
     }
 
-    // IsValidPtr is now the canonical one from Memory namespace (PatternScan.h)
-    // Keep this thin alias so existing call sites compile unchanged.
+
     inline bool IsValidPtr(uintptr_t addr)
     {
         return Memory::IsValidPtr(addr);
@@ -254,14 +251,13 @@ namespace Utils
         return true;
     }
 
-    // GetBonePos — every pointer step is validated with SafeRead.
-    // Returns zero-vector on any bad address instead of crashing.
+
     inline Vector GetBonePos(C_CSPlayerPawn* pawn, BoneID boneID)
     {
         if (!pawn || !Memory::IsValidPtr(reinterpret_cast<uintptr_t>(pawn)))
             return {};
 
-        // Step 1: read scene node pointer off the pawn
+
         uintptr_t sceneNodePtr = 0;
         if (!Memory::SafeRead(
                 reinterpret_cast<uintptr_t>(pawn) + Offsets::CGameSceneNode::m_pGameSceneNode,
@@ -269,21 +265,20 @@ namespace Utils
             || !sceneNodePtr)
             return {};
 
-        // Step 2: read modelState offset (points to CModelState inside scene node)
-        // The bone array pointer lives at modelState + 0x80
+
         uintptr_t modelStateBase = sceneNodePtr + Offsets::CModelState::m_modelState;
         uintptr_t boneArray = 0;
         if (!Memory::SafeRead(modelStateBase + 0x80, boneArray)
             || !Memory::IsValidPtr(boneArray))
             return {};
 
-        // Step 3: read the bone position (32 bytes per bone: 12 bytes Vector + padding)
+
         Vector pos{};
         uintptr_t boneAddr = boneArray + static_cast<int>(boneID) * 0x20;
         if (!Memory::SafeRead(boneAddr, pos))
             return {};
 
-        // Guard against NaN/Inf that would break W2S math
+ 
         if (!std::isfinite(pos.x) || !std::isfinite(pos.y) || !std::isfinite(pos.z))
             return {};
 

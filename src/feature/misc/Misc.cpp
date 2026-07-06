@@ -26,12 +26,12 @@ void Misc::Run() {
             uint8_t currentMode = 0;
             Memory::SafeRead(pObserverServices + Offsets::uint8::m_iObserverMode, currentMode);
             if (Globals::misc_thirdperson) {
-                if (currentMode != 1) { // 1 = Chase / Thirdperson
+                if (currentMode != 1) {
                     Memory::SafeWrite(pObserverServices + Offsets::uint8::m_iObserverMode, (uint8_t)1);
                 }
             } else {
                 if (currentMode == 1) {
-                    Memory::SafeWrite(pObserverServices + Offsets::uint8::m_iObserverMode, (uint8_t)0); // 0 = None / Firstperson
+                    Memory::SafeWrite(pObserverServices + Offsets::uint8::m_iObserverMode, (uint8_t)0);
                 }
             }
         }

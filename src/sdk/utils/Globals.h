@@ -75,6 +75,7 @@ namespace Globals
     inline bool  rage_silent        = false;
     inline bool  rage_autoshoot     = false;
     inline bool  rage_auto_accurate = false;
+    inline bool  rage_nospread      = false;
     inline bool  rage_multipoint    = false;
     inline int   rage_key           = 0;
     inline float rage_hitchance     = 80.0f;
@@ -87,8 +88,8 @@ namespace Globals
     inline bool  legit_rcs          = false;
     inline float legit_smooth       = 5.0f;
     inline float legit_fov          = 5.0f;
-    inline int   legit_key          = VK_LBUTTON;  // default LMB, configurable
-    inline bool  legit_key_active   = false;        // runtime state, not saved
+    inline int   legit_key          = VK_LBUTTON;
+    inline bool  legit_key_active   = false;
 
     // ── Triggerbot ─────────────────────────────────────────────────────────
     inline bool  trigger_enabled            = false;

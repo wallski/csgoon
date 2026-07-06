@@ -15,8 +15,7 @@ EntityManager& EntityManager::Get()
     return instance;
 }
 
-// ── Safe pointer helpers ───────────────────────────────────────────────────────
-// Read a pointer-sized value and return 0 on any fault or bad address.
+
 static uintptr_t ReadPtr(uintptr_t addr)
 {
     uintptr_t val = 0;
@@ -24,25 +23,22 @@ static uintptr_t ReadPtr(uintptr_t addr)
     return val;
 }
 
-// ── EntityManager::Update ─────────────────────────────────────────────────────
-// Called once per Present frame.  ALL memory reads go through SafeRead so a
-// stale / freed pointer during a round transition or map load simply skips that
-// entity instead of crashing.
+
 void EntityManager::Update()
 {
-    // Lazily resolve entity list address from cached base
+
     if (!entityListAddress && Globals::ClientBase)
         entityListAddress = Globals::ClientBase + Offsets::client_dll::dwEntityList;
 
     if (!entityListAddress)
         return;
 
-    // Level-1 dereference: entityListAddress → actual list object pointer
+
     uintptr_t listPtr = ReadPtr(entityListAddress);
     if (!listPtr)
         return;
 
-    // ── Local pawn ────────────────────────────────────────────────────────────
+
     C_CSPlayerPawn* currentLocalPawn = nullptr;
     if (Globals::ClientBase)
     {
@@ -51,25 +47,25 @@ void EntityManager::Update()
             currentLocalPawn = reinterpret_cast<C_CSPlayerPawn*>(localPawnAddr);
     }
 
-    // ── Entity walk ───────────────────────────────────────────────────────────
+
     std::vector<Entity_t> temp;
     temp.reserve(64);
 
     for (int i = 1; i < 64; ++i)
     {
-        // Chunk pointer table: listPtr+16, entries spaced 8 bytes apart
+
         uintptr_t listEntry = ReadPtr(listPtr + 8 * ((i & 0x7FFF) >> 9) + 16);
         if (!listEntry)
             continue;
 
-        // Controller slot within chunk
+
         uintptr_t controllerPtr = ReadPtr(listEntry + 112 * (i & 0x1FF));
         if (!controllerPtr || !Memory::IsValidPtr(controllerPtr))
             continue;
 
         auto controller = reinterpret_cast<C_CSPlayerController*>(controllerPtr);
 
-        // Read pawn handle via SafeRead to avoid faulting on a freed controller
+
         uint32_t pawnHandle = 0;
         if (!Memory::SafeRead(controllerPtr + Offsets::CHandle::m_hPlayerPawn, pawnHandle))
             continue;
@@ -77,7 +73,7 @@ void EntityManager::Update()
         if (!pawnHandle || pawnHandle == static_cast<uint32_t>(-1))
             continue;
 
-        // Resolve pawn through entity list
+
         uintptr_t pawnListEntry = ReadPtr(listPtr + 8 * ((pawnHandle & 0x7FFF) >> 9) + 16);
         if (!pawnListEntry)
             continue;
@@ -88,7 +84,7 @@ void EntityManager::Update()
 
         auto pawn = reinterpret_cast<C_CSPlayerPawn*>(pawnPtr);
 
-        // Skip self, dead pawns.  SafeRead the health so a freed pawn doesn't crash.
+
         if (pawn == currentLocalPawn)
             continue;
 
@@ -96,7 +92,7 @@ void EntityManager::Update()
         if (!Memory::SafeRead(pawnPtr + Offsets::int32::m_iHealth, health) || health <= 0)
             continue;
 
-        // Read team number safely
+
         int pawnTeam  = 0;
         int localTeam = 0;
         Memory::SafeRead(pawnPtr + Offsets::uint8::m_iTeamNum, pawnTeam);
@@ -105,7 +101,7 @@ void EntityManager::Update()
         ent.controller    = controller;
         ent.pawn          = pawn;
         ent.index         = i;
-        ent.pawnEntityIdx = static_cast<int>(pawnHandle & 0x7FFF); // entity list index for wall checks
+        ent.pawnEntityIdx = static_cast<int>(pawnHandle & 0x7FFF);
 
         if (currentLocalPawn)
         {
@@ -117,7 +113,7 @@ void EntityManager::Update()
         }
         else
         {
-            ent.isEnemy = true; // assume enemy when we have no local pawn
+            ent.isEnemy = true;
         }
 
         temp.push_back(ent);
@@ -130,7 +126,7 @@ void EntityManager::Update()
     }
 }
 
-// ── GetPawnFromHandle ──────────────────────────────────────────────────────────
+
 C_CSPlayerPawn* EntityManager::GetPawnFromHandle(uint32_t handle)
 {
     if (!handle || !entityListAddress)

@@ -19,7 +19,6 @@ void Configs::Save(const std::string& name) {
         return;
 
     // esp
-    //file << "esp_name=" << Globals::esp_name << "\n";
     file << "esp_corner_box=" << Globals::esp_corner_box << "\n";
     file << "esp_enabled=" << Globals::esp_enabled << "\n";
     file << "esp_box=" << Globals::esp_box << "\n";
@@ -106,6 +105,7 @@ void Configs::Save(const std::string& name) {
     file << "rage_silent=" << Globals::rage_silent << "\n";
     file << "rage_autoshoot=" << Globals::rage_autoshoot << "\n";
     file << "rage_auto_accurate=" << Globals::rage_auto_accurate << "\n";
+    file << "rage_nospread=" << Globals::rage_nospread << "\n";
     file << "rage_multipoint=" << Globals::rage_multipoint << "\n";
     file << "rage_hitchance=" << Globals::rage_hitchance << "\n";
     file << "rage_mindmg=" << Globals::rage_mindmg << "\n";
@@ -149,8 +149,6 @@ void Configs::Load(const std::string& name) {
 
         try {
             // esp
-            //else if (key == "esp_name")              Globals::esp_name = val == "1";
-
             if (key == "esp_enabled")          Globals::esp_enabled = val == "1";
             else if (key == "esp_corner_box") Globals::esp_corner_box = val == "1";
             else if (key == "esp_box")               Globals::esp_box = val == "1";
@@ -236,6 +234,7 @@ void Configs::Load(const std::string& name) {
             else if (key == "rage_silent")           Globals::rage_silent = val == "1";
             else if (key == "rage_autoshoot")        Globals::rage_autoshoot = val == "1";
             else if (key == "rage_auto_accurate")    Globals::rage_auto_accurate = val == "1";
+            else if (key == "rage_nospread")         Globals::rage_nospread = val == "1";
             else if (key == "rage_multipoint")       Globals::rage_multipoint = val == "1";
             else if (key == "rage_hitchance")        Globals::rage_hitchance = std::stof(val);
             else if (key == "rage_mindmg")           Globals::rage_mindmg = std::stof(val);
@@ -273,7 +272,6 @@ void Configs::Delete(const std::string& name) {
 
 void Configs::Reset() {
     // ESP
-    //Globals::esp_name = false;
     Globals::rage_fov = 5.0f;
     Globals::aim_team_check = true;
     Globals::aim_head = true;
@@ -356,6 +354,7 @@ void Configs::Reset() {
     Globals::rage_silent = false;
     Globals::rage_autoshoot = false;
     Globals::rage_auto_accurate = false;
+    Globals::rage_nospread = false;
     Globals::rage_multipoint = false;
     Globals::rage_hitchance = 80.0f;
     Globals::rage_mindmg = 20.0f;

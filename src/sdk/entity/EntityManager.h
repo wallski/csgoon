@@ -7,8 +7,8 @@ struct Entity_t
 {
     C_CSPlayerController* controller  = nullptr;
     C_CSPlayerPawn*       pawn        = nullptr;
-    int                   index       = -1;   // controller slot (1-64)
-    int                   pawnEntityIdx = -1; // pawn's entity list index (handle & 0x7FFF) — used for wall checks
+    int                   index       = -1;
+    int                   pawnEntityIdx = -1;
     bool                  isEnemy    = false;
 };
 

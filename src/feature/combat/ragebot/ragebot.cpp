@@ -11,9 +11,7 @@
 #include <cmath>
 #include <chrono>
 
-// Returns true if local player has line-of-sight to target (no wall in the way).
-// Uses m_iIDEntIndex: the entity index the server says is under the crosshair.
-// If it matches the target's pawn entity list index, the target is visible.
+
 static bool IsVisible(C_CSPlayerPawn* local, C_CSPlayerPawn* target) {
     int localIDX = local->m_iIDEntIndex();
     if (localIDX <= 0)
@@ -33,7 +31,7 @@ static bool IsActiveWeaponSniper(C_CSPlayerPawn* local) {
         return false;
 
     uint32_t activeWeaponHandle = 0;
-    if (!Memory::SafeRead(weaponServices + 0x60, activeWeaponHandle) || !activeWeaponHandle) // m_hActiveWeapon
+    if (!Memory::SafeRead(weaponServices + 0x60, activeWeaponHandle) || !activeWeaponHandle)
         return false;
 
     C_CSPlayerPawn* weaponEntity = EntityManager::Get().GetPawnFromHandle(activeWeaponHandle);
@@ -41,10 +39,9 @@ static bool IsActiveWeaponSniper(C_CSPlayerPawn* local) {
         return false;
 
     uint16_t itemDef = 0;
-    if (!Memory::SafeRead(reinterpret_cast<uintptr_t>(weaponEntity) + 0x1BA, itemDef)) // m_iItemDefinitionIndex
+    if (!Memory::SafeRead(reinterpret_cast<uintptr_t>(weaponEntity) + 0x1BA, itemDef))
         return false;
 
-    // 9 = AWP, 11 = G3SG1, 38 = SCAR-20, 40 = SSG 08
     return (itemDef == 9 || itemDef == 11 || itemDef == 38 || itemDef == 40);
 }
 
@@ -55,6 +52,20 @@ void RageAimbot::Run() {
     C_CSPlayerPawn* local = EntityManager::Get().GetLocalPawn();
     if (!local || !local->IsAlive())
         return;
+
+
+    if (Globals::rage_nospread) {
+        uintptr_t weaponServices = 0;
+        if (Memory::SafeRead(reinterpret_cast<uintptr_t>(local) + Offsets::CPlayer_WeaponServices::m_pWeaponServices, weaponServices) && weaponServices) {
+            uint32_t activeWeaponHandle = 0;
+            if (Memory::SafeRead(weaponServices + 0x60, activeWeaponHandle) && activeWeaponHandle) { // m_hActiveWeapon
+                C_CSPlayerPawn* weaponEntity = EntityManager::Get().GetPawnFromHandle(activeWeaponHandle);
+                if (weaponEntity) {
+                    Memory::SafeWrite<float>(reinterpret_cast<uintptr_t>(weaponEntity) + Offsets::float32::m_fAccuracyPenalty, 0.0f);
+                }
+            }
+        }
+    }
 
     Vector eyePos = local->m_vOldOrigin() + local->m_vecViewOffset();
     Vector targetAngle;
@@ -67,19 +78,17 @@ void RageAimbot::Run() {
     if (!target)
         return;
 
-    // RCS — compensate punch before writing the angle
+ 
     if (local->m_iShotsFired() > 1) {
         targetAngle = targetAngle - (local->m_aimPunchAngle() * 2.0f);
         Utils::NormalizeAngles(targetAngle);
     }
 
-    // ── Silent aim ─────────────────────────────────────────────────────────────
+
     if (Globals::rage_silent) {
         InputHook::SetRageAngles(targetAngle, true);
     }
-    // ── Rage lock — instant direct snap ────────────────────────────────────────
-    // Writes directly to v_angle and dwViewAngles every frame.
-    // Direct writes are reliable regardless of CreateMove cmd validity.
+
     else if (Globals::rage_lock) {
         bool keyOk = (Globals::rage_key == 0) || (GetAsyncKeyState(Globals::rage_key) & 0x8000);
         if (keyOk) {
@@ -90,7 +99,7 @@ void RageAimbot::Run() {
         }
     }
 
-    // ── Auto shoot (timed, unconditional) ──────────────────────────────────────
+
     if (Globals::rage_autoshoot) {
         static auto lastShot = std::chrono::steady_clock::now();
         auto now = std::chrono::steady_clock::now();
@@ -102,21 +111,20 @@ void RageAimbot::Run() {
         return;
     }
 
-    // ── Auto Accurate — counter-strafe auto-shot ───────────────────────────────
-    // Does NOT lock — only fires when conditions for a guaranteed hit are met:
-    //   1. Crosshair is on an enemy (FindTarget confirmed above)
-    //   2. Target is visible — no wall between us and them  ← wall check
-    //   3. Horizontal speed ≤ 10 u/s (counter-strafe window: velocity near zero)
-    //      During full strafe you are at ~250 u/s, so this only triggers for the
-    //      brief moment between A→D or D→A when accuracy is at 100%.
+    // Auto Accurate — counter-strafe auto-shot
+    // Crosshair is on an enemy (FindTarget confirmed above)
+    // Target is visible — no wall between us and them  ← wall check
+    // Horizontal speed ≤ 10 u/s (counter-strafe window: velocity near zero)
+    // During full strafe you are at ~250 u/s, so this only triggers for the
+    // brief moment between A→D or D→A when accuracy is at 100%.
     if (!Globals::rage_auto_accurate)
         return;
 
-    // Wall check — don't fire through walls
+
     if (!IsVisible(local, target))
         return;
 
-    // Recoil check — for non-snipers (rifles, pistols), only fire if recoil has settled
+
     if (!IsActiveWeaponSniper(local)) {
         Vector punch = local->m_aimPunchAngle();
         float punchLen = std::sqrt(punch.x * punch.x + punch.y * punch.y);
@@ -124,7 +132,6 @@ void RageAimbot::Run() {
             return;
     }
 
-    // Speed check — only fire at the counter-strafe accuracy window
     Vector vel{};
     Memory::SafeRead(
         reinterpret_cast<uintptr_t>(local) + Offsets::CNetworkVelocityVector::m_vecVelocity,
@@ -134,7 +141,7 @@ void RageAimbot::Run() {
     if (speed > 10.0f)
         return;
 
-    // Fire — short cooldown to prevent double-registering the click
+
     static auto lastAccShot = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::milliseconds>(now - lastAccShot).count() >= 50) {

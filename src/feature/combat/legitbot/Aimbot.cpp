@@ -23,10 +23,10 @@ void Aimbot::Run() {
     if (!local || !local->IsAlive())
         return;
 
-    // Respect configured keybind (default LMB)
+
     bool keyDown = (GetAsyncKeyState(Globals::legit_key) & 0x8000) != 0;
     
-    // Standalone RCS
+
     static Vector oldPunch{};
     if (Globals::legit_rcs && local->m_iShotsFired() > 1) {
         Vector punch = local->m_aimPunchAngle() * 2.0f;
@@ -67,7 +67,7 @@ void Aimbot::Run() {
             Utils::NormalizeAngles(targetAngle);
         }
 
-        // Instant snap — legit lock should be as fast as possible
+
         uintptr_t localPtr = reinterpret_cast<uintptr_t>(local);
         Memory::SafeWrite(localPtr + Offsets::QAngle::v_angle, targetAngle);
         if (Globals::ClientBase)

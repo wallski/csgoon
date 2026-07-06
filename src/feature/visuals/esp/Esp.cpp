@@ -5,18 +5,16 @@
 #include "../../../../ext/imgui/imgui.h"
 #include <algorithm>
 
-// Returns a health-based color: green (100hp) -> yellow (50hp) -> red (0hp)
+
 static ImU32 HealthColor(int hp)
 {
     float t = std::clamp(hp / 100.f, 0.f, 1.f);
     float r, g;
     if (t >= 0.5f) {
-        // 100->50hp : green to yellow
         float f = (t - 0.5f) * 2.f;
         r = 1.f - f;
         g = 1.f;
     } else {
-        // 50->0hp : yellow to red
         float f = t * 2.f;
         r = 1.f;
         g = f;
@@ -130,9 +128,9 @@ void ESP::Render()
             float hpFrac = std::clamp(hp / 100.f, 0.f, 1.f);
             float hpH    = h * hpFrac;
 
-            // Background bar
+
             dl->AddRectFilled({ x - 6, y - 1 }, { x - 2, y + h + 1 }, IM_COL32(0, 0, 0, 150));
-            // Gradient health fill
+
             dl->AddRectFilled({ x - 5, y + h - hpH }, { x - 3, y + h }, HealthColor(hp));
         }
 

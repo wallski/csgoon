@@ -11,9 +11,7 @@ namespace Combat
 
     void Run();
 
-    // Shared target-finding logic used by both legitbot and ragebot.
-    // Returns the closest enemy to crosshair within fov_limit degrees.
-    // outAngle is set to the exact angle toward the chosen bone.
+
     inline C_CSPlayerPawn* FindTarget(
         C_CSPlayerPawn* local,
         const Vector&   eyePos,
@@ -34,8 +32,7 @@ namespace Combat
 
             Vector targetPos{};
 
-            // Head target: enemy origin + view offset = their exact eye/head position.
-            // Same math as the local player's eye pos. Correct for any pose or crouch.
+
             if (Globals::aim_head) {
                 Vector origin  = ent.pawn->m_vOldOrigin();
                 Vector viewOff = ent.pawn->m_vecViewOffset();
@@ -43,7 +40,7 @@ namespace Combat
                     targetPos = origin + viewOff;
             }
 
-            // Body fallback: spine bone
+
             if (targetPos.IsZero() && Globals::aim_body)
                 targetPos = Utils::GetBonePos(ent.pawn, BoneID::Spine);
 

@@ -160,11 +160,7 @@ static bool begin_col(const char* id, float totalW, bool right) {
 }
 static void end_col() { ImGui::EndChild(); }
 
-// ──────────────────────────────────────────────────────────────────────────────
-//  PREVIEW FIGURE
-//  Extracted into a helper so we can call it twice — once for enemy, once for
-//  team — without duplicating the draw code. Just pass in the right globals.
-// ──────────────────────────────────────────────────────────────────────────────
+
 static void draw_preview(
     const char* id,
     bool showBox, bool showCorner, float* boxColor, float boxThick,
@@ -371,6 +367,7 @@ void Menu::Render() {
             feature("team check", &Globals::aim_team_check);
             feature("auto shoot", &Globals::rage_autoshoot);
             feature("auto accurate", &Globals::rage_auto_accurate);
+            feature("no spread", &Globals::rage_nospread);
             feature("multipoint", &Globals::rage_multipoint);
             
             ImGui::Spacing();

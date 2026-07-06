@@ -83,7 +83,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
         ImGui_ImplWin32_Init(g_Window);
         ImGui_ImplDX11_Init(g_Device, g_Context);
 
-        // Cache module base once — no more per-frame GetModuleHandleA
+
         Globals::ClientBase = Memory::GetModuleBase("client.dll");
 
         g_Init = true;
@@ -91,7 +91,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
     if (Globals::g_Unloading)
     {
-        // Signal Destroy() that we are done with this frame
+
         if (Hooks::g_FrameEvent)
             SetEvent(Hooks::g_FrameEvent);
         return oPresent(swapChain, sync, flags);
@@ -99,8 +99,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
     EntityManager::Get().Update();
 
-    // ViewMatrix is a raw float[16] — C arrays aren't assignable so SafeRead<T>
-    // can't be used here.  Use a guarded memcpy inside SEH instead.
+
     {
         uintptr_t vmSrc = Globals::ClientBase + Offsets::client_dll::dwViewMatrix;
         if (Globals::ClientBase && Memory::IsValidPtr(vmSrc))
@@ -111,7 +110,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
                        reinterpret_cast<const void*>(vmSrc),
                        sizeof(Globals::ViewMatrix));
             }
-            __except (EXCEPTION_EXECUTE_HANDLER) {}  // bad page — keep old matrix
+            __except (EXCEPTION_EXECUTE_HANDLER) {}
         }
     }
 
@@ -150,7 +149,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
     HRESULT hr = oPresent(swapChain, sync, flags);
 
-    // Signal frame completion so Destroy() can safely proceed
+
     if (Hooks::g_FrameEvent)
         SetEvent(Hooks::g_FrameEvent);
 
@@ -159,7 +158,7 @@ HRESULT __stdcall Hooks::hkPresent(IDXGISwapChain* swapChain, UINT sync, UINT fl
 
 void Hooks::Setup()
 {
-    // Create the frame-sync event (auto-reset)
+
     Hooks::g_FrameEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 
     if (MH_Initialize() != MH_OK) {
@@ -231,10 +230,9 @@ void Hooks::Destroy()
 {
     Globals::g_Unloading = true;
 
-    // Wait for the current frame to finish instead of blind Sleep(100)
+
     if (Hooks::g_FrameEvent)
     {
-        // Give it up to 500ms — way more than one frame ever takes
         WaitForSingleObject(Hooks::g_FrameEvent, 500);
         CloseHandle(Hooks::g_FrameEvent);
         Hooks::g_FrameEvent = nullptr;
