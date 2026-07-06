@@ -1,6 +1,6 @@
 # csgoon
 
-Internal cheat for Counter-Strike 2. Injected as a DLL into `cs2.exe`.
+A CS2 C++ internal.
 
 ## Architecture
 
@@ -32,16 +32,17 @@ Internal cheat for Counter-Strike 2. Injected as a DLL into `cs2.exe`.
 | Silent Aim | Broken |
 | Legit RCS | Broken |
 | No Smoke | Broken |
-| No Spread | Implemented but broken |
+| No Spread | broken |
 | Bunny Hop | Broken |
 | Multipoint | Not implemented |
-| Autoshoot | Broken (legit) |
+| Autoshoot | Broken |
 | Third Person | Broken |
 | Auto Strafe | Not implemented |
 
 ### Removed
 
 - Radar
+- Name esp
 
 ## New Since Last Update
 
@@ -77,10 +78,10 @@ src/
 
 ## Notes
 
-- Offsets are generated with a2x dumper and merged via [OffsetMerger](https://github.com/wallski/OffsetMerger). Update after game patches.
+- Offsets are pulled from `Offsets.h` (CS2 schema dump). Update after game patches.
 - The `CreateMove` hook is pattern-scanned at runtime.
 - All memory reads are wrapped in SEH `__try/__except` blocks.
 
 ## Disclaimer
 
-For educational purposes only. Use at your own risk.
+For educational  purposes only. Use at your own risk.
